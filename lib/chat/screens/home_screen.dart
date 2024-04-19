@@ -1,0 +1,392 @@
+
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/src/widgets/framework.dart';
+import 'package:ielts/chat/models/chat_user.dart';
+import 'package:ielts/chat/screens/profile_screen.dart';
+import 'package:ielts/chat/widgets/chat_user_card.dart';
+import 'package:ielts/chat/widgets/teacher_group_chat_widget.dart';
+import 'package:ielts/main.dart';
+import 'package:ielts/screens/headingcompletiondetails.dart';
+import 'package:ielts/screens/home_screen.dart';
+import 'package:ielts/screens/login_screen.dart';
+import 'package:ielts/widgets/adsHelper.dart';
+
+import '../../screens/adverting/advertining_screen.dart';
+import '../api/apis.dart';
+import '../models/message.dart';
+
+
+class HomeScreens extends StatefulWidget {
+  const HomeScreens({super.key});
+
+  @override
+  State<HomeScreens> createState() => _HomeScreensState();
+}
+
+class _HomeScreensState extends State<HomeScreens> with TickerProviderStateMixin {
+  //for storing all user
+  List<ChatUser> _list = [];
+  //for searing user
+
+  final List<ChatUser> _searchList = [];
+  // for storing search status
+  bool _isSearching = false;
+  final _adController = NativeAdController();
+  TabController? _controller;
+  int _selectedIndex = 0;
+
+
+
+  @override
+  void initState() {
+
+    super.initState();
+    APIs.getSelfInfo();
+    _controller = TabController(length: 2, vsync: this);
+
+    SystemChannels.lifecycle.setMessageHandler((message) {
+      if (APIs.auth.currentUser != null) {
+        if (message.toString().contains('resume'))
+          APIs.updateActiveStatus(false);
+        if (message.toString().contains('pause'))
+          APIs.updateActiveStatus(false);
+      }
+
+      return Future.value(message);
+    });
+  }
+  @override
+  void dispose() {
+    _controller!.dispose();
+    super.dispose();
+  }
+  @override
+  Widget build(BuildContext context) {
+    _adController.ad = AdHelper.loadNativeAd(adController: _adController);
+
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: WillPopScope(
+        onWillPop: () {
+          if (_isSearching) {
+            setState(() {
+              _isSearching = !_isSearching;
+            });
+            return Future.value(false);
+          } else {
+            return Future.value(true);
+          }
+        },
+        child: DefaultTabController(
+
+        length: 2,
+        child: Scaffold(
+            // bottomNavigationBar: _adController.ad != null &&
+            //         _adController.adLoaded.isTrue
+            //     ? SizedBox(
+            //         height: 120,
+            //         child: AdWidget(
+            //             ad: _adController.ad!), // Create and load a new ad object
+            //       )
+            //     : null,
+          
+            //appbar
+            backgroundColor: Colors.white,
+            appBar: AppBar(
+              backgroundColor: Colors.teal,
+              elevation: 0, // Removes shadow
+              leading: IconButton(
+                onPressed: () {},
+                icon: Icon(
+                  CupertinoIcons.home,
+                  color: Colors.black,
+                ),
+              ),
+              centerTitle: true,
+              title: _isSearching
+                  ? TextField(
+                autofocus: true,
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 18,
+                ),
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  hintText: 'Search name or email...',
+                  hintStyle: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 16,
+                  ),
+                ),
+                onChanged: (val) {
+                  // Search logic
+                  _searchList.clear();
+                  for (var i in _list) {
+                    if (i.name.toLowerCase().contains(val.toLowerCase()) ||
+                        i.email.toLowerCase().contains(val.toLowerCase())) {
+                      _searchList.add(i);
+                    }
+                  }
+                  setState(() {
+                    _searchList;
+                  });
+                },
+              )
+                  : Text(
+                'IELTS- YAN',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 22,
+                ),
+              ),
+              actions: [
+                IconButton(
+                  onPressed: () {
+                    if (!premium_user_google_play) {
+                      ads.showInterstitialAd();
+                      // AdHelper.initAds();
+                      // AdHelper.showInterstitialAd();
+                    }
+                    setState(() {
+                      _isSearching = !_isSearching;
+                    });
+                  },
+                  icon: Icon(
+                    _isSearching
+                        ? CupertinoIcons.clear_circled_solid
+                        : Icons.search,
+                    color: Colors.black,
+                  ),
+                ),
+                IconButton(
+                  onPressed: () {
+                    if (!premium_user_google_play) {
+                      ads.showInterstitialAd();
+          
+                      // AdHelper.showInterstitialAd();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ProfileScreen(
+                            user: APIs.me,
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                  icon: Icon(
+                    Icons.more_vert,
+                    color: Colors.black,
+                  ),
+                ),
+              ],
+              bottom: TabBar(
+                // padding: EdgeInsets.all(10),
+                labelColor: Colors.black,
+                indicatorColor: Colors.white,
+                indicator: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10))
+                ),
+                labelStyle: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),
+                indicatorSize: TabBarIndicatorSize.tab,
+                tabs: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text('Chat'),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text('Group'),
+                  ),
+                ],
+              ),
+            ),
+            body: TabBarView(
+
+              children: [
+                Container(
+                  child: StreamBuilder(
+                    stream: APIs.getAllUsers(),
+                    builder: (BuildContext context, snapshot) {
+                      switch (snapshot.connectionState) {
+                      //if data is loding
+                        case ConnectionState.waiting:
+                        case ConnectionState.none:
+                          return const Center(child: CircularProgressIndicator());
+                      //if data is loded
+                        case ConnectionState.active:
+                        case ConnectionState.done:
+                          final data = snapshot.data?.docs;
+                          _list =
+                              data?.map((e) => ChatUser.fromJson(e.data())).toList() ??
+                                  [];
+                          if (_list.isNotEmpty) {
+                            return ListView.builder(
+                              itemCount:
+                              _isSearching ? _searchList.length : _list.length,
+                              physics: BouncingScrollPhysics(),
+                              padding: EdgeInsets.only(top: mq.height * .01),
+                              itemBuilder: (context, index) {
+                                return ChatUserCard(
+                                  user:
+                                  _isSearching ? _searchList[index] : _list[index],
+                                );
+                              },
+                            );
+                          } else {
+                            return Center(child: Text('No connection found'));
+                          }
+                      }
+                    },
+                  ),
+                ),
+                //for chat view,
+                Container(
+                  child: StreamBuilder(
+                    stream: FirebaseFirestore.instance.collection('Teacher').snapshots(),
+                    builder: (BuildContext context,  snapshot) {
+                      if (snapshot.hasData) {
+                        FirebaseAuth auth = FirebaseAuth.instance;
+                        return ListView.builder(
+                          itemCount: snapshot.data!.docs.length,
+                          itemBuilder: (context, i) {
+                            // Retrieve the current document data
+                            final doc = snapshot.data!.docs[i];
+                            // Get the list of members' IDs
+                            List<String> membersID = List<String>.from(doc['membersID']);
+
+                            // Check if the current user ID is in the members' IDs list
+                            bool isMember = false;
+
+                            if(auth.currentUser!.uid.isNotEmpty){
+                              isMember = membersID.contains(auth.currentUser!.uid);
+                              print(isMember);
+
+                            }
+                            return ListTile(
+                              // User profile picture
+                              leading: InkWell(
+                                onTap: () {},
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(25.0), // Adjust the corner radius as needed
+                                  child: CachedNetworkImage(
+                                    width: 55.0, // Adjust width as needed
+                                    height: 55.0, // Adjust height as needed
+                                    imageUrl: doc['GroupImage'].toString(),
+                                    errorWidget: (context, url, error) => CircleAvatar(
+                                      child: Icon(CupertinoIcons.person),
+                                    ),
+                                  ),
+                                ),
+                              ),
+
+                              // User name (group title)
+                              title: Text(doc['GroupTitle'].toString()),
+
+                              // Conditionally render "Chat Now" or "Join Now" button
+                              trailing: isMember
+                                  ? ElevatedButton(
+                                onPressed: () {
+                                  Navigator.push(context, MaterialPageRoute(builder: (context)=>TeacherGroup(teacherId: snapshot.data!.docs[i].id)));
+                                },
+                                child: Text("Chat Now"),
+                              )
+                                  : ElevatedButton(
+                                onPressed: () {
+                                  if(auth.currentUser!.uid != null){
+                                    addMember(snapshot.data!.docs[i].id);
+
+                                  }else{
+                                    Navigator.push(context, MaterialPageRoute(builder: (context)=> LoginScreen1(title: 'Login')));
+                                  }
+                                  setState(() {
+
+                                  });
+                                  // Handle join action (e.g., adding the current user to the group)
+                                  // Add your join group code here
+                                },
+                                child: Text("Join Now"),
+                              ),
+                            );
+                          },
+                        );
+
+
+                      } else if (snapshot.hasError) {
+                        return Center(child: Text(snapshot.error.toString()),); // Handle errors
+                      } else {
+                        return Center(child: CircularProgressIndicator(),); // Display your UI with the data
+                      }
+                    },
+                  ),
+                ),
+                //for group view,
+          
+          
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+  Future<void> addMember(teacherId) async {
+    final time = DateTime.now().microsecondsSinceEpoch.toString();
+
+    FirebaseAuth auth = FirebaseAuth.instance;
+    DocumentSnapshot document = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(auth.currentUser!.uid) // Replace with your document ID
+        .get();
+
+
+    List<ChatRoomMember> members = [
+      ChatRoomMember(
+        userId: document.id,
+        name: document["firstName"],
+        imageUrl: 'https://example.com/profile1.jpg',
+        isAdmin: false,
+      ),
+    ];
+
+    final GroupMessages message = GroupMessages(
+      name: document['firstName'],
+      msg: "1",
+      read: '',
+      type: Type.text,
+      sent: time,
+      fromid: auth.currentUser!.uid,
+      toId: auth.currentUser!.uid,
+    );
+    List<Map<String, dynamic>> membersMap =
+    members.map((member) => member.toMap()).toList();
+    try {
+      await FirebaseFirestore.instance.collection("Teacher").doc(teacherId).set({
+        'membersID': FieldValue.arrayUnion(members.map((member) => member.userId).toList()),
+        // List of user IDs
+        'members': FieldValue.arrayUnion(membersMap),
+        // List of members as maps
+      },SetOptions(merge: true));
+
+      await FirebaseFirestore.instance
+          .collection("Teacher")
+          .doc(teacherId)
+          .collection("Chat")
+          .doc(time).set(message.toJson());
+      print('Document added to the new collection');
+    } catch (e) {
+      print('Error adding document: $e');
+    }
+
+
+
+  }
+
+}

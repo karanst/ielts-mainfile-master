@@ -1,0 +1,99 @@
+plugins {
+    id "com.android.application"
+    id "kotlin-android"
+    id "dev.flutter.flutter-gradle-plugin"
+}
+
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withReader('UTF-8') { reader ->
+        localProperties.load(reader)
+    }
+}
+
+def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
+if (flutterVersionCode == null) {
+    flutterVersionCode = '1'
+}
+
+def flutterVersionName = localProperties.getProperty('flutter.versionName')
+if (flutterVersionName == null) {
+    flutterVersionName = '1.0'
+}
+apply plugin: 'com.android.application'
+//apply plugin: 'com.google.gms.google-services'
+apply plugin: 'kotlin-android'
+apply plugin: 'com.google.gms.google-services'
+//apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
+//apply plugin: 'com.google.firebase.crashlytics'
+
+//def keystoreProperties = new Properties()
+//def keystorePropertiesFile = rootProject.file('key.properties')
+//   if (keystorePropertiesFile.exists()) {
+//       keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+//   }
+
+   android {
+    namespace "com.ieltsexam.ieltsyan"
+    compileSdkVersion 34
+    ndkVersion flutter.ndkVersion
+
+       packagingOptions {
+           pickFirst 'lib/x86/libc++_shared.so'
+           pickFirst 'lib/x86_64/libc++_shared.so'
+           pickFirst 'lib/armeabi-v7a/libc++_shared.so'
+           pickFirst 'lib/arm64-v8a/libc++_shared.so'
+       }
+
+
+       compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    defaultConfig {
+        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
+        applicationId "com.ieltsexam.ieltsyan"
+        // You can update the following values to match your application needs.
+        // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
+        minSdkVersion 21
+        targetSdkVersion flutter.targetSdkVersion
+        versionCode flutterVersionCode.toInteger()
+        versionName flutterVersionName
+    }
+
+       signingConfigs {
+//       release {
+//           keyAlias keystoreProperties['keyAlias']
+//           keyPassword keystoreProperties['keyPassword']
+//           storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
+//           storePassword keystoreProperties['storePassword']
+//       }
+   }
+   buildTypes {
+       release {
+           signingConfig signingConfigs.debug
+       }
+   }
+
+}
+
+flutter {
+    source '../..'
+}
+dependencies {
+    implementation 'com.google.android.gms:play-services-ads:22.6.0'
+  
+
+}
+//dependencies {
+//    implementation(platform("com.google.firebase:firebase-bom:32.3.1"))
+//    implementation("com.google.firebase:firebase-analytics-ktx")
+//    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+//    implementation 'com.google.firebase:firebase-analytics:17.2.2'
+//    testImplementation 'junit:junit:4.12'
+//    androidTestImplementation 'androidx.test:runner:1.1.1'
+//    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
+//    implementation 'com.google.firebase:firebase-crashlytics:17.0.0-beta01'
+//}

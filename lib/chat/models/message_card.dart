@@ -58,7 +58,8 @@ class _MessageCaedState extends State<MessageCaed> {
                     EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * .04, vertical: .01),
                 child: Padding(
                   padding: EdgeInsets.all(widget.message.type == Type.image
-                      ? MediaQuery.of(context).size.width * .01
+                      ? 10
+                  // MediaQuery.of(context).size.width * .01
                       : MediaQuery.of(context).size.width * .04),
                   child: widget.message.type == Type.text
                       ? Column(
@@ -74,7 +75,7 @@ class _MessageCaedState extends State<MessageCaed> {
                         ],
                       )
                       : ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(30),
                           child: CachedNetworkImage(
                               // width: MediaQuery.of(context).size.height * .05,
                               // height: MediaQuery.of(context).size.height * .05,
@@ -180,7 +181,7 @@ class _MessageCaedState extends State<MessageCaed> {
                     ],
                   )
                   : ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(30),
                       child: CachedNetworkImage(
                           // width: MediaQuery.of(context).size.height * .05,
                           // height: MediaQuery.of(context).size.height * .05,

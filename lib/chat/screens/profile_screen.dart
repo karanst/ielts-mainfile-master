@@ -54,64 +54,64 @@ class _ProfileScreenState extends State<ProfileScreen> {
           appBar: AppBar(title: const Text('Profile Screen')),
 
           //floating button to log out
-          floatingActionButton: Padding(
-            padding: const EdgeInsets.only(bottom: 5),
-            child: FloatingActionButton.extended(
-              backgroundColor: Colors.redAccent,
-              onPressed: () async {
-                // Show confirmation dialog
-                bool logoutConfirmed = await showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: Text('Confirm Logout'),
-                      content: Text('Are you sure you want to logout?'),
-                      actions: <Widget>[
-                        TextButton(
-                          onPressed: () {
-                            Navigator.of(context)
-                                .pop(false); // No, do not logout
-                          },
-                          child: Text('No'),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pop(true); // Yes, logout
-                          },
-                          child: Text('Yes'),
-                        ),
-                      ],
-                    );
-                  },
-                );
-
-                // If user confirms logout, proceed with logout process
-                if (logoutConfirmed ?? false) {
-                  // Show progress dialog
-                  Dialogs.showProgressBar(context);
-
-                  try {
-                    // Call logout APIs
-                    await APIs.updateActiveStatus(false);
-                    await APIs.auth.signOut();
-                    await GoogleSignIn().signOut();
-
-                    // Hide progress dialog
-                    Navigator.pop(context);
-
-                    // Navigate to login screen
-                    Navigator.pushReplacement(context,
-                        MaterialPageRoute(builder: (_) => LoginScreen()));
-                  } catch (e) {
-                    // Handle errors, if any
-                    print('Error during logout: $e');
-                  }
-                }
-              },
-              icon: const Icon(Icons.logout),
-              label: const Text('Logout'),
-            ),
-          ),
+          // floatingActionButton: Padding(
+          //   padding: const EdgeInsets.only(bottom: 5),
+          //   child: FloatingActionButton.extended(
+          //     backgroundColor: Colors.redAccent,
+          //     onPressed: () async {
+          //       // Show confirmation dialog
+          //       bool logoutConfirmed = await showDialog(
+          //         context: context,
+          //         builder: (BuildContext context) {
+          //           return AlertDialog(
+          //             title: Text('Confirm Logout'),
+          //             content: Text('Are you sure you want to logout?'),
+          //             actions: <Widget>[
+          //               TextButton(
+          //                 onPressed: () {
+          //                   Navigator.of(context)
+          //                       .pop(false); // No, do not logout
+          //                 },
+          //                 child: Text('No'),
+          //               ),
+          //               TextButton(
+          //                 onPressed: () {
+          //                   Navigator.of(context).pop(true); // Yes, logout
+          //                 },
+          //                 child: Text('Yes'),
+          //               ),
+          //             ],
+          //           );
+          //         },
+          //       );
+          //
+          //       // If user confirms logout, proceed with logout process
+          //       if (logoutConfirmed ?? false) {
+          //         // Show progress dialog
+          //         Dialogs.showProgressBar(context);
+          //
+          //         try {
+          //           // Call logout APIs
+          //           await APIs.updateActiveStatus(false);
+          //           await APIs.auth.signOut();
+          //           await GoogleSignIn().signOut();
+          //
+          //           // Hide progress dialog
+          //           Navigator.pop(context);
+          //
+          //           // Navigate to login screen
+          //           Navigator.pushReplacement(context,
+          //               MaterialPageRoute(builder: (_) => LoginScreen()));
+          //         } catch (e) {
+          //           // Handle errors, if any
+          //           print('Error during logout: $e');
+          //         }
+          //       }
+          //     },`
+          //     icon: const Icon(Icons.logout),
+          //     label: const Text('Logout'),
+          //   ),
+          // ),
 
           //body
           body: Form(

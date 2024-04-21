@@ -233,7 +233,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       keyboardType: TextInputType.multiline,
                       maxLines: null,
                       decoration: InputDecoration(
-                        hintText: 'Type Someting....',
+                        hintText: 'Type Something....',
                         hintStyle: TextStyle(color: Colors.blueAccent),
                         border: InputBorder.none,
                       ),
@@ -243,7 +243,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     onPressed: () async {
                       final ImagePicker picker = ImagePicker(); // Pick an image
                       final List<XFile> images =
-                          await picker.pickMultiImage(imageQuality: 80);
+                          await picker.pickMultiImage(imageQuality: 60);
 
                       // ignore: unused_local_variable
                       for (var i in images) {
@@ -257,7 +257,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         // APIs.updateProfilePicture(File(_image!));
                         // for hiding bottom sheet
 
-                        APIs.sendChatImage(widget.user, File(i.path));
+                         APIs.sendChatImage(widget.user, File(i.path));
                         setState(() {
                           _isUploading = false;
                         });
@@ -278,7 +278,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         setState(() {
                           _isUploading = true;
                         });
-                        APIs.sendChatImage(widget.user, File(image.path));
+                         APIs.sendChatImage(widget.user, File(image.path));
                         // APIs.updateProfilePicture(File(_image!));
                         // for hiding bottom sheet
 

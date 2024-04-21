@@ -265,7 +265,7 @@ class APIs {
 
     // message to send
     final Messages message = Messages(
-      name: '',
+      name: user.displayName.toString(),
       msg: msg,
       read: '',
       told: chatUser.id,

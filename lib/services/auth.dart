@@ -51,7 +51,10 @@ Future<String?> signInWithGoogle() async {
     FirebaseFirestore.instance.collection('users').doc(user.uid).set({
       "uid": user.uid,
       "firstName": name,
+      "is_online": false,
+      "last_active": "",
       "email": user.email,
+      "posh_token": "",
       "userImage": user.photoURL
     });
 
@@ -123,6 +126,9 @@ Future<String> signUp(String email, String password, String firstName) async {
     userId = user?.uid??'';
 
     FirebaseFirestore.instance.collection('users').doc(user?.uid).set({
+      "is_online": false,
+      "last_active": "",
+      "posh_token": "",
       "uid": user?.uid,
       "firstName": firstName,
       "email": email,
@@ -172,6 +178,9 @@ Future<String> anonymousSignIn() async {
       "firstName": 'Guest',
       "email": 'test@email.com',
       "userImage": userImage,
+      "is_online": false,
+      "last_active": "",
+      "posh_token": "",
     });
   } catch (error) {
     print(error);

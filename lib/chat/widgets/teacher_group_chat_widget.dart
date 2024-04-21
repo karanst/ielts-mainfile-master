@@ -230,7 +230,7 @@ class _TeacherGroupState extends State<TeacherGroup> {
                       keyboardType: TextInputType.multiline,
                       maxLines: null,
                       decoration: InputDecoration(
-                        hintText: 'Type Someting....',
+                        hintText: 'Type Something....',
                         hintStyle: TextStyle(color: Colors.blueAccent),
                         border: InputBorder.none,
                       ),

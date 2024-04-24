@@ -92,7 +92,7 @@ Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeScreens()));
     print('notification sent ');
     try {
       final body = {
-        "to": chatUser.uid,
+        "to": chatUser.poshToken,
         "notification": {
           "title": name ?? "test", //our name should be send
           "body": msg,

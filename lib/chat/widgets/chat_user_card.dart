@@ -75,6 +75,8 @@ class _ChatUserCardState extends State<ChatUserCard> {
                     _message != null
                         ? _message!.type == Type.image
                             ? 'image'
+                    : _message!.type == Type.audio
+                        ? 'voice message'
                             : _message!.msg
                         : widget.user.about,
                     maxLines: 1),

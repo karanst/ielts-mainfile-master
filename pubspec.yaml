@@ -98,6 +98,8 @@ dependencies:
   fluttertoast: ^8.2.4
   speech_to_text: ^6.6.0
   carousel_slider: ^4.2.1
+  audio_waveforms: ^1.0.5
+  audio_video_progress_bar: ^2.0.2
 
   chat_bubbles:
 

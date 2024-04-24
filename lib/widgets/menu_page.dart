@@ -71,7 +71,7 @@ class _MenuPageState extends State<MenuPage> {
                   child: StreamBuilder(
                     stream: userId.isNotEmpty
                         ? FirebaseFirestore.instance
-                            .collection('users')
+                            .collection('Users')
                             .doc(userId)
                             .snapshots()
                         : null, // Added a check for userId.isNotEmpty
@@ -81,9 +81,9 @@ class _MenuPageState extends State<MenuPage> {
                           child: Center(child: CircularProgressIndicator()),
                         );
                       } else if (snapshot.hasData && snapshot.data.exists) {
-                        print('snapshot.data(): ${snapshot.data['firstName']}');
+                        print('snapshot.data(): ${snapshot.data['name']}');
                         User user = User(
-                          firstName: snapshot.data['firstName'] ?? "",
+                          firstName: snapshot.data['name'] ?? "",
                           photoUrl: snapshot.data['userImage'] ?? "",
                           // firstName:  "",
                           // photoUrl:  "",

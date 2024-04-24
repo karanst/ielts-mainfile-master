@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_pdf_viewer/easy_pdf_viewer.dart';
@@ -57,7 +58,6 @@ class _HomeScreenState extends State<HomeScreen>
   late Stream<QuerySnapshot> imageStream;
   int currentSlideIndex = 0;
   CarouselController carouselController = CarouselController();
-  @override
   List<IAPItem> _items = [];
   List<PurchasedItem> _purchases = [];
   StreamSubscription? _conectionSubscription;
@@ -107,16 +107,41 @@ class _HomeScreenState extends State<HomeScreen>
       print(e);
     }
   }
+  final List<String> _productLists = Platform.isAndroid
+      ? [
+    'vault_premium',
+    'android.test.purchased',
+    'android.test.canceled',
+  ]
+      : [    'teacher1.ielts_20usd',
+    'teacher2.ielts_50usd',];
+
+  Future _getProduct() async {
+    print('getProduct: ${_productLists}');
+    List<IAPItem> items =
+    await FlutterInappPurchase.instance.getProducts(_productLists);
+    for (var item in items) {
+      print('${item.toString()}');
+      this._items.add(item);
+    }
+
+    setState(() {
+      this._items = items;
+      this._purchases = [];
+    });
+  }
 
   Future<void> initPlatformState() async {
     // prepare
-    var result = await FlutterInappPurchase.instance.initialize();
-    print('result: $result');
+    // var result = await FlutterInappPurchase.instance.initialize();
+    // print('result: $result');
     // if (!mounted) return;
     _getPurchaseHistory();
+    await _getProduct();
     // refresh items for android
     try {
       String msg = await FlutterInappPurchase.instance.consumeAll();
+      print('msg: $msg');
       // await _getProduct();
       premium_user_google_play = true;
       print('consumeAllItems: $msg');

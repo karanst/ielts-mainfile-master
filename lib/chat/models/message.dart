@@ -23,7 +23,7 @@ class Messages {
     name = json['name'].toString();
     read = json['read'].toString();
     told = json['told'].toString();
-    type = json['type'].toString() == Type.image.name ? Type.image : Type.text;
+    type = json['type'].toString() == Type.image.name ? Type.image : json['type'].toString() == Type.text.name ?  Type.text : Type.audio;
     sent = json['sent'].toString();
     fromid = json['fromid'].toString();
   }
@@ -41,7 +41,7 @@ class Messages {
   }
 }
 
-enum Type { text, image }
+enum Type { text, image, audio }
 class GroupMessages {
  GroupMessages( {
    required this.name,
@@ -51,6 +51,7 @@ class GroupMessages {
     required this.sent,
     required this.fromid,
     required String toId,
+
   });
   late final String msg;
   late final String name;
@@ -81,3 +82,28 @@ class GroupMessages {
 
 enum GroupType { text, image }
 
+class RecentChat {
+ late final String id;
+late  final String message;
+
+  RecentChat({
+    required this.id,
+    required this.message,
+  });
+
+  // Factory method to create a RecentChat object from a map
+  factory RecentChat.fromMap(Map<String, dynamic> map) {
+    return RecentChat(
+      id: map['id'],
+      message: map['message'],
+    );
+  }
+
+  // Method to convert a RecentChat object to a map
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'message': message,
+    };
+  }
+}

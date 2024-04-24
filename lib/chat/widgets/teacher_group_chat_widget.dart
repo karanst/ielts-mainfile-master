@@ -71,12 +71,9 @@ class _TeacherGroupState extends State<TeacherGroup> {
                           .snapshots(),
                       builder: (context, snapshot) {
                         switch (snapshot.connectionState) {
-                          //if data is loading
                           case ConnectionState.waiting:
                           case ConnectionState.none:
                             return const SizedBox();
-
-                          //if some or all data is loaded then show it
                           case ConnectionState.active:
                           case ConnectionState.done:
                             final data = snapshot.data?.docs;

@@ -34,6 +34,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:in_app_update/in_app_update.dart';
 
+import 'chat/screens/home_screen.dart';
+
  late Size mq;
 Future initFirebase() async {
   await Firebase.initializeApp();
@@ -51,8 +53,7 @@ main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   Get.lazyPut(() => FirebaseStorageService());
-  APIs.getFirebaseMessagingToken();
-  FirebaseMessaging.onBackgroundMessage(myBackgroundMessageHandler);
+
 
   await initFirebase();
   _initIAP();
@@ -94,6 +95,9 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     checkForUpdate();
+    // FirebaseMessaging.onBackgroundMessage(_handleMessage);
+
+    APIs.getFirebaseMessagingToken(context);
   }
 
   Future<void> checkForUpdate() async {
@@ -135,6 +139,13 @@ class _MyAppState extends State<MyApp> {
     print('Update started');
   }
 
+  // Future<void> _handleMessage(RemoteMessage message) {
+  //   if (message.messageId !=null) {
+  //     Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeScreens()));
+  //
+  //   }
+  //   return Future<void>.value();
+  // }
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {

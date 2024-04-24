@@ -6,12 +6,17 @@ import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:ielts/chat/api/apis.dart';
+import 'package:ielts/chat/halper/audio_chat_tile.dart';
 import 'package:ielts/chat/halper/my_date_util.dart';
 import 'package:ielts/main.dart';
 
 import '../halper/dialog.dart';
 import '../main.dart';
 import 'message.dart';
+
+
+
+enum PlayStateState { paused, playing, loading, idle }
 
 class MessageCaed extends StatefulWidget {
   MessageCaed({super.key, required this.message});
@@ -23,6 +28,8 @@ class MessageCaed extends StatefulWidget {
 
 class _MessageCaedState extends State<MessageCaed> {
   FirebaseAuth auth = FirebaseAuth.instance;
+
+
   @override
   Widget build(BuildContext context) {
     bool isMe = APIs.user.uid == widget.message.fromid;
@@ -30,7 +37,10 @@ class _MessageCaedState extends State<MessageCaed> {
         onLongPress: () {
           _showBottomSheet(isMe);
         },
-        child: isMe ? _greenMessage() : _blueMessage());
+        child: Padding(
+          padding: const EdgeInsets.only(top: 4.0),
+          child:  isMe ?_greenMessage() : _blueMessage(),
+        ) );
   }
 
   //sender or nother user message
@@ -74,7 +84,8 @@ class _MessageCaedState extends State<MessageCaed> {
                            Text(widget.message.name)
                         ],
                       )
-                      : ClipRRect(
+                      : widget.message.type == Type.image ?
+                  ClipRRect(
                           borderRadius: BorderRadius.circular(30),
                           child: CachedNetworkImage(
                               // width: MediaQuery.of(context).size.height * .05,
@@ -91,7 +102,8 @@ class _MessageCaedState extends State<MessageCaed> {
                                     Icons.image,
                                     size: 70,
                                   )),
-                        ),
+                        )
+                  : AudioChatTile(message: widget.message, ),
 
                 ),
 
@@ -165,39 +177,44 @@ class _MessageCaedState extends State<MessageCaed> {
                     bottomLeft: Radius.circular(30),
                     topRight: Radius.circular(30))),
             margin:
-                EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * .04, vertical: .01),
+                EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * .04, vertical: .02),
             child: Padding(
               padding: EdgeInsets.all(widget.message.type == Type.image
                   ? MediaQuery.of(context).size.width * .01
                   : MediaQuery.of(context).size.width * .04),
               child: widget.message.type == Type.text
                   ? Column(
-                    children: [
-                      Text(
-                          widget.message.msg,
-                          style: TextStyle(fontSize: 15, color: Colors.black87),
-                        ),
-                      Text("me")
-                    ],
-                  )
-                  : ClipRRect(
-                      borderRadius: BorderRadius.circular(30),
-                      child: CachedNetworkImage(
-                          // width: MediaQuery.of(context).size.height * .05,
-                          // height: MediaQuery.of(context).size.height * .05,
+                children: [
+                  Text(
+                    widget.message.msg,
+                    style: TextStyle(fontSize: 15, color: Colors.black87),
+                  ),
+                  if(auth.currentUser!.uid ==widget.message.fromid )
+                    Text("Me"),
+                  if(auth.currentUser!.uid !=widget.message.fromid)
+                    Text(widget.message.name)
+                ],
+              )
+                  : widget.message.type == Type.image ?
+              ClipRRect(
+                borderRadius: BorderRadius.circular(30),
+                child: CachedNetworkImage(
+                  // width: MediaQuery.of(context).size.height * .05,
+                  // height: MediaQuery.of(context).size.height * .05,
 
-                          imageUrl: widget.message.msg,
-                          placeholder: (context, url) => Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
-                              ),
-                          errorWidget: (context, url, error) => Icon(
-                                Icons.image,
-                                size: 70,
-                              )),
+                    imageUrl: widget.message.msg,
+                    placeholder: (context, url) => Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                      ),
                     ),
+                    errorWidget: (context, url, error) => Icon(
+                      Icons.image,
+                      size: 70,
+                    )),
+              )
+                  : AudioChatTile(message: widget.message,),
             ),
           ),
         ),

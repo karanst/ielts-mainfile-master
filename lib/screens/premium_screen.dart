@@ -32,7 +32,8 @@ class _PremiumScreenState extends State<PremiumScreen> {
           'android.test.purchased',
           'android.test.canceled',
         ]
-      : ['com.cooni.point1000', 'com.cooni.point5000'];
+      : [    'teacher1.ielts_20usd',
+    'teacher2.ielts_50usd',];
 
   // final List<String> _productLists = Platform.isAndroid
   //     // ? [
@@ -164,8 +165,8 @@ class _PremiumScreenState extends State<PremiumScreen> {
   }*/
   Future<void> initPlatformState() async {
     // prepare
-    var result = await FlutterInappPurchase.instance.initialize();
-    print('result: $result');
+    // var result = await FlutterInappPurchase.instance.initialize();
+    // print('result: $result');
     // if (!mounted) return;
     _getPurchaseHistory();
     // refresh items for android

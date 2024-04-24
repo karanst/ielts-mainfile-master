@@ -3,7 +3,7 @@ class ChatUser {
     required this.image,
     required this.poshToken,
     required this.name,
-    required this.id,
+    required this.uid,
     required this.email,
     required this.about,
     required this.createdAt,
@@ -14,7 +14,7 @@ class ChatUser {
   late String poshToken;
   late String name;
   late String email;
-  late String id;
+  late String uid;
   late String about;
   late String createdAt;
   late String lastActive;
@@ -26,10 +26,10 @@ class ChatUser {
     name = json['name'] ?? '';
     email = json['email'] ?? '';
     about = json['about'] ?? '';
-    id = json['id'] ?? '';
+    uid = json['uid'] ?? '';
     createdAt = json['created_at'] ?? '';
     lastActive = json['last_active'] ?? '';
-    isOnline = json['is_online'] ?? '';
+    isOnline = json['is_online'] ?? false;
   }
 
   Map<String, dynamic> toJson() {
@@ -38,7 +38,7 @@ class ChatUser {
     data['posh_token'] = poshToken;
     data['name'] = name;
     data['about'] = about;
-    data['id'] = id;
+    data['uid'] = uid;
     data['email'] = email;
     data['created_at'] = createdAt;
     data['last_active'] = lastActive;

@@ -53,6 +53,7 @@ class _TeacherListState extends State<TeacherList> {
                     itemBuilder:(BuildContext context,i){
                     return GestureDetector(
                       onTap: (){
+
                         Navigator.push(
                             context,
                             MaterialPageRoute(

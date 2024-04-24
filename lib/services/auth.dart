@@ -18,6 +18,8 @@ String userImage =
     'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcTP6HBlxRaCn7CViHiZrhpx1Sx4GHM-dafYZZjW0eizMFidSQRS&usqp=CAU';
 String errorMessage='';
 Future<String?> signInWithGoogle() async {
+  DateTime dateTime = DateTime.now();
+  Timestamp specificTimeStamp = Timestamp.fromDate(dateTime);
   try {
     final GoogleSignInAccount? googleSignInAccount = await googleSignIn.signIn();
     final GoogleSignInAuthentication? googleSignInAuthentication =
@@ -49,13 +51,14 @@ Future<String?> signInWithGoogle() async {
       name = name.substring(0, name.indexOf(" "));
     }
     FirebaseFirestore.instance.collection('users').doc(user.uid).set({
-      "uid": user.uid,
-      "firstName": name,
       "is_online": false,
       "last_active": "",
-      "email": user.email,
       "posh_token": "",
-      "userImage": user.photoURL
+      "uid": user.uid,
+      "name": user.displayName,
+      "email": user.email,
+      "userImage": user.photoURL,
+      "timeStamp":specificTimeStamp
     });
 
     assert(!user.isAnonymous);
@@ -115,24 +118,26 @@ Future<String> signIn(String email, String password) async {
 }
 
 Future<String> signUp(String email, String password, String firstName) async {
+  DateTime dateTime = DateTime.now();
+  Timestamp specificTimeStamp = Timestamp.fromDate(dateTime);
   User? user;
 
   try {
     UserCredential result = await _auth.createUserWithEmailAndPassword(
         email: email, password: password);
     user = result.user;
-    name = user?.displayName??'';
     email = user?.email??'';
     userId = user?.uid??'';
-
+print(firstName);
     FirebaseFirestore.instance.collection('users').doc(user?.uid).set({
       "is_online": false,
       "last_active": "",
       "posh_token": "",
       "uid": user?.uid,
-      "firstName": firstName,
+      "name": firstName,
       "email": email,
       "userImage": userImage,
+      "timeStamp":specificTimeStamp,
     });
   } catch (error) {
   if(error is FirebaseAuthException){
@@ -167,20 +172,22 @@ Future<String> signUp(String email, String password, String firstName) async {
 
 Future<String> anonymousSignIn() async {
   User? user;
-
+  DateTime dateTime = DateTime.now();
+  Timestamp specificTimeStamp = Timestamp.fromDate(dateTime);
   try {
     UserCredential result = await _auth.signInAnonymously();
 
     userId = result.user?.uid??'';
 
     FirebaseFirestore.instance.collection('users').doc(userId).set({
-      "uid": userId,
-      "firstName": 'Guest',
-      "email": 'test@email.com',
-      "userImage": userImage,
       "is_online": false,
       "last_active": "",
       "posh_token": "",
+      "uid": userId,
+      "name": name,
+      "email": email,
+      "userImage": userImage,
+      "timeStamp":specificTimeStamp
     });
   } catch (error) {
     print(error);

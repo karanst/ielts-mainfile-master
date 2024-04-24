@@ -3,12 +3,14 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 // import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:ielts/chat/halper/voice_record.dart';
 import 'package:ielts/chat/models/chat_user.dart';
 import 'package:ielts/chat/models/message_card.dart';
 import 'package:ielts/chat/screens/view_profile_screen.dart';
@@ -30,9 +32,114 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   List<Messages> _list = [];
 
-  final _textController = TextEditingController();
 
+  final _textController = TextEditingController();
+String toId= '';
   bool _showEmogi = false, _isUploading = false;
+
+  void openVoiceRecord() {
+    showModalBottomSheet(
+        backgroundColor: Colors.transparent,
+        context: context,
+        builder: (context) => VoiceRecord(
+          user: widget.user,
+          // recordingCallback: (media) {
+          //   // sendAudioMessage(
+          //   //     media: media,
+          //   //     mode: _chatDetailController.actionMode.value,
+          //   //     room: _chatDetailController.chatRoom.value!);
+          // },
+        ));
+  }
+  // Future<bool> sendAudioMessage(
+  //     {required Media media,
+  //       required ChatMessageActionMode mode,
+  //       required ChatRoomModel room}) async {
+  //   bool status = true;
+  //
+  //   String localMessageId = randomId();
+  //   String? repliedOnMessage = selectedMessage.value == null
+  //       ? null
+  //       : jsonEncode(selectedMessage.value!.toJson()).encrypted();
+  //
+  //   // store audio in local storage
+  //   File mainFile = await FileManager.saveChatMediaToDirectory(
+  //       media, localMessageId, false, chatRoom.value!.id);
+  //
+  //   ChatMessageModel currentMessageModel = ChatMessageModel();
+  //
+  //   var content = {
+  //     'messageType': messageTypeId(MessageContentType.audio),
+  //   };
+  //   currentMessageModel.localMessageId = localMessageId;
+  //   currentMessageModel.roomId = room.id;
+  //   currentMessageModel.isEncrypted = AppConfigConstants.enableEncryption;
+  //   currentMessageModel.chatVersion = AppConfigConstants.chatVersion;
+  //   currentMessageModel.sender = _userProfileManager.user.value!;
+  //
+  //   // currentMessageModel.messageTime = LocalizationString.justNow;
+  //   currentMessageModel.userName = LocalizationString.you;
+  //   currentMessageModel.senderId = _userProfileManager.user.value!.id;
+  //   currentMessageModel.messageType = messageTypeId(
+  //       mode == ChatMessageActionMode.reply
+  //           ? MessageContentType.reply
+  //           : MessageContentType.audio);
+  //   currentMessageModel.createdAt =
+  //       (DateTime.now().millisecondsSinceEpoch / 1000).round();
+  //   currentMessageModel.messageContent = json.encode(content).encrypted();
+  //   // currentMessageModel.media = media;
+  //   currentMessageModel.repliedOnMessageContent = repliedOnMessage;
+  //
+  //   addNewMessage(message: currentMessageModel, roomId: room.id);
+  //
+  //   getIt<DBManager>().saveMessage(chatMessages: [currentMessageModel]);
+  //   update();
+  //
+  //   // upload audio and send message
+  //
+  //   uploadMedia(
+  //       messageId: localMessageId,
+  //       media: media,
+  //       mainFile: mainFile,
+  //       callback: (uploadedMedia) {
+  //         var content = {
+  //           'messageType': messageTypeId(MessageContentType.audio),
+  //           'audio': uploadedMedia.audio,
+  //         };
+  //
+  //         var message = {
+  //           'userId': _userProfileManager.user.value!.id,
+  //           'localMessageId': localMessageId,
+  //           'is_encrypted': AppConfigConstants.enableEncryption,
+  //           'chat_version': AppConfigConstants.chatVersion,
+  //           'messageType': messageTypeId(mode == ChatMessageActionMode.reply
+  //               ? MessageContentType.reply
+  //               : MessageContentType.audio),
+  //           'message': json.encode(content).encrypted(),
+  //           'room': room.id,
+  //           'created_by': _userProfileManager.user.value!.id,
+  //           'created_at': currentMessageModel.createdAt,
+  //           'replied_on_message': repliedOnMessage,
+  //         };
+  //
+  //         // send message to socket
+  //         status =
+  //             getIt<SocketManager>().emit(SocketConstants.sendMessage, message);
+  //
+  //         // update in cache message
+  //
+  //         currentMessageModel.messageContent = json.encode(content).encrypted();
+  //
+  //         // update message in local database
+  //         getIt<DBManager>().updateMessageContent(
+  //             roomId: room.id,
+  //             localMessageId: currentMessageModel.localMessageId.toString(),
+  //             content: json.encode(content).encrypted());
+  //       });
+  //
+  //   setReplyMessage(message: null);
+  //   return status;
+  // }
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -78,7 +185,13 @@ class _ChatScreenState extends State<ChatScreen> {
                                     .toList() ??
                                 [];
 
+
                             if (_list.isNotEmpty) {
+                              if(toId ==''){
+                                toId =_list[0].told;
+                                print(toId);
+                              }
+
                               return ListView.builder(
                                   reverse: true,
                                   itemCount: _list.length,
@@ -86,7 +199,11 @@ class _ChatScreenState extends State<ChatScreen> {
                                       EdgeInsets.only(top: mq.height * .01),
                                   physics: const BouncingScrollPhysics(),
                                   itemBuilder: (context, index) {
-                                    return MessageCaed(message: _list[index]);
+                                    return InkWell(
+                                      onTap: (){
+
+                                      },
+                                        child: MessageCaed(message: _list[index]));
                                   });
                             } else {
                               return const Center(
@@ -218,12 +335,13 @@ class _ChatScreenState extends State<ChatScreen> {
                 children: [
                   IconButton(
                     onPressed: () {
-                      setState(() {
-                        _showEmogi = !_showEmogi;
-                      });
+                      openVoiceRecord();
+                      // setState(() {
+                      //   _showEmogi = !_showEmogi;
+                      // });
                     },
                     icon: Icon(
-                      Icons.emoji_emotions,
+                      Icons.mic,
                       color: Colors.blueAccent,
                     ),
                   ),
@@ -258,6 +376,8 @@ class _ChatScreenState extends State<ChatScreen> {
                         // for hiding bottom sheet
 
                          APIs.sendChatImage(widget.user, File(i.path));
+                        updateTimeStamp(toId);
+
                         setState(() {
                           _isUploading = false;
                         });
@@ -308,14 +428,20 @@ class _ChatScreenState extends State<ChatScreen> {
             onPressed: () {
               if (_textController.text.isNotEmpty) {
                 if (_list.isEmpty) {
+
+                  print(widget.user);
+                  print('------------------------------------------');
                   //on first message (add user to my_user collection of chat user)
                   APIs.sendFirstMessage(
                       widget.user, _textController.text, Type.text);
+                  updateTimeStamp(toId);
                 } else {
                   //simply send message
                   APIs.sendMessage(
                       widget.user, _textController.text, Type.text);
                 }
+                updateTimeStamp(toId);
+
                 _textController.text = '';
               }
             },
@@ -330,5 +456,16 @@ class _ChatScreenState extends State<ChatScreen> {
         ],
       ),
     );
+  }
+  updateTimeStamp(toId) async{
+    print(toId);
+    DateTime dateTime = DateTime.now();
+    Timestamp specificTimeStamp = Timestamp.fromDate(dateTime);
+   await FirebaseFirestore.instance.collection('users').doc(toId).update({
+      'timeStamp':specificTimeStamp
+    });
+   setState(() {
+
+   });
   }
 }

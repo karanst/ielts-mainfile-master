@@ -34,9 +34,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:in_app_update/in_app_update.dart';
 
-import 'chat/screens/home_screen.dart';
+import 'chat/screens/chat_main_screen.dart';
 
- late Size mq;
+ late Size mq ;
 Future initFirebase() async {
   await Firebase.initializeApp();
 }

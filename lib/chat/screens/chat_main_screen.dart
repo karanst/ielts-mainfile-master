@@ -22,14 +22,14 @@ import '../api/apis.dart';
 import '../models/message.dart';
 
 
-class HomeScreens extends StatefulWidget {
-  const HomeScreens({super.key});
+class ChatMainScreen extends StatefulWidget {
+  const ChatMainScreen({super.key});
 
   @override
-  State<HomeScreens> createState() => _HomeScreensState();
+  State<ChatMainScreen> createState() => _ChatMainScreenState();
 }
 
-class _HomeScreensState extends State<HomeScreens> with TickerProviderStateMixin {
+class _ChatMainScreenState extends State<ChatMainScreen> with TickerProviderStateMixin {
   //for storing all user
   List<ChatUser> _list = [];
   //for searing user
@@ -41,6 +41,8 @@ FirebaseAuth auth = FirebaseAuth.instance;
   TabController? _controller;
   int _selectedIndex = 0;
 
+  DocumentSnapshot? teacherData;
+
 
 
   @override
@@ -48,6 +50,7 @@ FirebaseAuth auth = FirebaseAuth.instance;
 
     super.initState();
    APIs.getSelfInfo();
+
     _controller = TabController(length: 2, vsync: this);
 
     SystemChannels.lifecycle.setMessageHandler((message) {
@@ -241,7 +244,7 @@ FirebaseAuth auth = FirebaseAuth.instance;
                               itemCount:
                               _isSearching ? _searchList.length : _list.length,
                               physics: BouncingScrollPhysics(),
-                              padding: EdgeInsets.only(top: mq.height * .01),
+                              // padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * .01),
                               itemBuilder: (context, index) {
 
                                 return
@@ -341,9 +344,27 @@ FirebaseAuth auth = FirebaseAuth.instance;
                                 child: Text("Chat Now"),
                               )
                                   : ElevatedButton(
-                                onPressed: () {
-                                  if(auth.currentUser!.uid != null){
-                                    addMember(snapshot.data!.docs[i].id);
+                                onPressed: ()  async {
+                                  if(auth.currentUser!.uid.isNotEmpty){
+    await FirebaseFirestore.instance.collection("TeacherData").snapshots().forEach((element) {
+      print('this is elemet ${element.docs[i]['TeacherId']} ${doc['GroupId']}');
+      if(
+      element.docs[i]['TeacherId'].toString() == doc['GroupId'] ){
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (_) =>
+                    AdvertisingScreen(snap: element.docs[i],)));
+      }
+    });
+
+                                    // Navigator.push(
+                                    //     context,
+                                    //     MaterialPageRoute(
+                                    //         builder: (_) =>
+                                    //             AdvertisingScreen(snap: snapshot.data!.docs[i],)));
+                                    // Navigator.push(context, MaterialPageRoute(builder: (context) => TeacherGroup(teacherId: snapshot.data!.docs[i].id)));
+                                    // addMember(snapshot.data!.docs[i].id);
                                   } else {
                                     Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen1(title: 'Login')));
                                   }

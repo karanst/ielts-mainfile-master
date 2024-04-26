@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:ielts/screens/dashboard.dart';
 import 'package:ielts/screens/home_screen.dart';
 import 'package:ielts/utils/app_constants.dart';
 
@@ -121,12 +122,12 @@ class _LoginScreenState extends State<LoginScreen1>
         print('successful');
 
         // Navigator.pushReplacementNamed(context, RoutePaths.home);
-        Get.offAll(HomeScreen());
+        Get.offAll(DashboardScreen());
       } else {
         await signUp(emailInputController.text, passwordInputController.text,
             firstNameInputController.text);
 
-        Get.offAll(HomeScreen());
+        Get.offAll(DashboardScreen());
         // Navigator.pushReplacementNamed(context, RoutePaths.home);
       }
       //   } on AuthException catch (error) {

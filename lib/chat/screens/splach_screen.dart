@@ -12,7 +12,7 @@ import 'package:ielts/main.dart';
 
 import '../../screens/login_screen.dart';
 import '../main.dart';
-import 'home_screen.dart';
+import 'chat_main_screen.dart';
 
 class SplashScreens extends StatefulWidget {
   const SplashScreens({super.key});
@@ -33,7 +33,7 @@ class _SplashScreensState extends State<SplashScreens> {
           systemNavigationBarColor: Colors.white, statusBarColor: Colors.white);
       if (APIs.auth.currentUser != null) {
         Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (_) => HomeScreens()));
+            context, MaterialPageRoute(builder: (_) => ChatMainScreen()));
       } else {
         Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (_) => LoginScreen1(title: 'Login',)));
@@ -78,14 +78,14 @@ class _SplashScreensState extends State<SplashScreens> {
       body: Stack(
         children: [
           Positioned(
-            top: mq.height * .10,
-            right: mq.width * .25,
-            width: mq.width * .5,
+            top: MediaQuery.of(context).size.height * .10,
+            right: MediaQuery.of(context).size.width * .25,
+            width: MediaQuery.of(context).size.width * .5,
             child: Image.asset('assets/icon.png'),
           ),
           Positioned(
-              bottom: mq.height * .15,
-              width: mq.width,
+              bottom: MediaQuery.of(context).size.height * .15,
+              width: MediaQuery.of(context).size.width,
               child: Center(
                   child: Text(
                 'Make for you with love',

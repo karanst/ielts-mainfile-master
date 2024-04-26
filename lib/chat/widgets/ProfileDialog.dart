@@ -18,19 +18,19 @@ class ProfileDialog extends StatelessWidget {
       backgroundColor: Colors.white.withOpacity(.9),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       content: SizedBox(
-          width: mq.width * .6,
-          height: mq.height * .35,
+          width: MediaQuery.of(context).size.width * .6,
+          height: MediaQuery.of(context).size.height * .35,
           child: Stack(
             children: [
               // user profile picture
 
               Positioned(
-                top: mq.height * .075,
-                left: mq.width * .1,
+                top: MediaQuery.of(context).size.height * .075,
+                left: MediaQuery.of(context).size.width * .1,
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(mq.height * .25),
+                  borderRadius: BorderRadius.circular(MediaQuery.of(context).size.height * .25),
                   child: CachedNetworkImage(
-                    width: mq.width * .5,
+                    width: MediaQuery.of(context).size.width * .5,
                     fit: BoxFit.cover,
                     imageUrl: user.image,
                     errorWidget: (context, url, error) =>
@@ -41,9 +41,9 @@ class ProfileDialog extends StatelessWidget {
 
               // user name
               Positioned(
-                left: mq.width * .04,
-                top: mq.height * .02,
-                width: mq.width * .55,
+                left: MediaQuery.of(context).size.width * .04,
+                top: MediaQuery.of(context).size.height * .02,
+                width: MediaQuery.of(context).size.width * .55,
                 child: Text(user.name,
                     style: const TextStyle(
                         fontSize: 18, fontWeight: FontWeight.w500)),

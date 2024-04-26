@@ -175,10 +175,10 @@ class _HomeScreenState extends State<HomeScreen>
       this._purchases.add(item);
     }
 
-    setState(() {
+    // setState(() {
       this._items = [];
       this._purchases = items;
-    });
+    // });
   }
 
   @override
@@ -242,20 +242,20 @@ class _HomeScreenState extends State<HomeScreen>
     }
   }
 
-  int _selectedIndex = 0;
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-
-    // Handle navigation to different pages here
-    Example:
-    if (index == 1) {
-      Navigator.push(
-          context, MaterialPageRoute(builder: (context) => SplashScreens()));
-    }
-  }
+  // int _selectedIndex = 0;
+  //
+  // void _onItemTapped(int index) {
+  //   setState(() {
+  //     _selectedIndex = index;
+  //   });
+  //
+  //   // Handle navigation to different pages here
+  //   Example:
+  //   if (index == 1) {
+  //     Navigator.push(
+  //         context, MaterialPageRoute(builder: (context) => SplashScreens()));
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -267,231 +267,233 @@ class _HomeScreenState extends State<HomeScreen>
     height = MediaQuery.of(context).size.height;
     width = MediaQuery.of(context).size.width;
 
-    return WillPopScope(
+    return
+      WillPopScope(
         onWillPop: () async {
           // return SystemChannels.platform.invokeMethod('SystemNavigator.pop');
           SystemChannels.platform.invokeMethod('SystemNavigator.pop');
           return true;
         },
         child: Scaffold(
-          backgroundColor: Colors.white,
-          body: SingleChildScrollView(
-            child: SafeArea(
-              child: Container(
-                // color: Color.fromARGB(255, 221, 12, 144),
-                // width: width,
-                // height: height,
-                child: Column(
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(),
-                      // height: height * 0.25,
-                      width: width,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(
-                              top: 15,
-                              left: 15,
-                              right: 15,
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                InkWell(
-                                  onTap: () {
-                                    // Handle sorting action
-                                    Get.offAll(() => MenuPage(userId: userId));
-                                  },
-                                  child: Icon(
-                                    Icons.sort,
-                                    color: Colors.teal,
-                                    size: 40,
-                                  ),
+        backgroundColor: Colors.white,
+        body: SingleChildScrollView(
+          child: SafeArea(
+            child: Container(
+              // color: Color.fromARGB(255, 221, 12, 144),
+              // width: width,
+              // height: height,
+              child: Column(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(),
+                    // height: height * 0.25,
+                    width: width,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            top: 15,
+                            left: 15,
+                            right: 15,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              InkWell(
+                                onTap: () {
+                                  // Handle sorting action
+                                  Get.offAll(() => MenuPage(userId: userId));
+                                },
+                                child: Icon(
+                                  Icons.sort,
+                                  color: Colors.teal,
+                                  size: 40,
                                 ),
-                                InkWell(
-                                  onTap: () {
-                                    // Handle settings navigation
-                                    Navigator.pushNamed(
-                                        context, RoutePaths.settings);
-                                  },
-                                  child: Container(
-                                    height: 50,
-                                    width: 50,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(15),
-                                      image: DecorationImage(
-                                        image: AssetImage('assets/woman.png'),
-                                      ),
+                              ),
+                              InkWell(
+                                onTap: () {
+                                  // Handle settings navigation
+                                  Navigator.pushNamed(
+                                      context, RoutePaths.settings);
+                                },
+                                child: Container(
+                                  height: 50,
+                                  width: 50,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(15),
+                                    image: DecorationImage(
+                                      image: AssetImage('assets/woman.png'),
                                     ),
                                   ),
-                                )
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Body
+                  GestureDetector(
+                    onTap: (){
+                      Navigator.push(context, MaterialPageRoute(builder: (context) =>TeacherList()));
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(30),
+                            topRight: Radius.circular(30),
+                          )),
+                      // height: height * 0.55,
+                      width: width,
+                      padding: EdgeInsets.symmetric(),
+                      child: Column(
+                        children: [
+
+                          Container(
+                            margin: EdgeInsets.symmetric(
+                                vertical: 8, horizontal: 20),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              color: Colors.white,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black26,
+                                  spreadRadius: 1,
+                                  blurRadius: 6,
+                                ),
                               ],
+                            ),
+                            child: Row(
+                              mainAxisAlignment:
+                              MainAxisAlignment.spaceEvenly,
+                              children: [
+
+                                Column(
+                                  children: [
+                                    Text(
+                                      'Meet Our ',
+                                      style: TextStyle(
+                                        color: Colors.black, // Default color for text
+                                        fontSize: 24.0, // Set text size
+                                      ),),
+                                    Text(
+                                      'Teacher',
+                                      style: TextStyle(
+                                        color: Colors.blue, // Blue color for "Teacher"
+                                        fontWeight: FontWeight.bold, // Optional: make "Teacher" bold
+                                      ),
+                                    ),
+
+                                  ],
+                                ),
+
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Image.asset(
+                                    "assets/teacherPro.jpeg",fit: BoxFit.cover,
+                                    width: MediaQuery.of(context).size.width*0.4,
+                                    // height: MediaQuery.of(context).size.height*0.2,
+                                  ),
+                                ),
+
+
+
+                              ],
+                            ),
+                          ),
+
+
+                          SingleChildScrollView(
+                            child: GridView.builder(
+                              gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                childAspectRatio: 1.1,
+                                // mainAxisSpacing: 5,
+                              ),
+                              shrinkWrap: true,
+                              physics: NeverScrollableScrollPhysics(),
+                              itemCount: imgData.length,
+                              itemBuilder: (context, index) {
+                                return InkWell(
+                                  onTap: () {
+                                    if (!premium_user_google_play) {
+                                      ads.showInterstitialAd();
+                                      AdHelper.initAds();
+                                      AdHelper.showInterstitialAd(
+                                          onComplete: () {
+                                            navigateToSection(index);
+                                          });
+                                    }
+                                  },
+                                  child:
+                                  Container(
+                                    margin: EdgeInsets.symmetric(
+                                        vertical: 8, horizontal: 20),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(20),
+                                      color: Colors.white,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black26,
+                                          spreadRadius: 1,
+                                          blurRadius: 6,
+                                        ),
+                                      ],
+                                    ),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        Image.asset(
+                                          imgData[index],
+                                          width: 100,
+                                        ),
+                                        Text(
+                                          titles[index],
+                                          style: TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
                           ),
                         ],
                       ),
                     ),
 
-                    // Body
-                    GestureDetector(
-                      onTap: (){
-                        Navigator.push(context, MaterialPageRoute(builder: (context) =>TeacherList()));
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(30),
-                              topRight: Radius.circular(30),
-                            )),
-                        // height: height * 0.55,
-                        width: width,
-                        padding: EdgeInsets.symmetric(),
-                        child: Column(
-                          children: [
-
-                            Container(
-                              margin: EdgeInsets.symmetric(
-                                  vertical: 8, horizontal: 20),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20),
-                                color: Colors.white,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black26,
-                                    spreadRadius: 1,
-                                    blurRadius: 6,
-                                  ),
-                                ],
-                              ),
-                              child: Row(
-                                mainAxisAlignment:
-                                MainAxisAlignment.spaceEvenly,
-                                children: [
-
-                                  Column(
-                                    children: [
-                                      Text(
-                                        'Meet Our ',
-                                        style: TextStyle(
-                                          color: Colors.black, // Default color for text
-                                          fontSize: 24.0, // Set text size
-                                        ),),
-                                      Text(
-                                        'Teacher',
-                                        style: TextStyle(
-                                          color: Colors.blue, // Blue color for "Teacher"
-                                          fontWeight: FontWeight.bold, // Optional: make "Teacher" bold
-                                        ),
-                                      ),
-
-                                    ],
-                                  ),
-
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Image.asset(
-                                      "assets/teacherPro.jpeg",fit: BoxFit.cover,
-                                      width: MediaQuery.of(context).size.width*0.4,
-                                      // height: MediaQuery.of(context).size.height*0.2,
-                                    ),
-                                  ),
-
-
-
-                                ],
-                              ),
-                            ),
-
-
-                            SingleChildScrollView(
-                              child: GridView.builder(
-                                gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 2,
-                                  childAspectRatio: 1.1,
-                                  // mainAxisSpacing: 5,
-                                ),
-                                shrinkWrap: true,
-                                physics: NeverScrollableScrollPhysics(),
-                                itemCount: imgData.length,
-                                itemBuilder: (context, index) {
-                                  return InkWell(
-                                    onTap: () {
-                                      if (!premium_user_google_play) {
-                                        ads.showInterstitialAd();
-                                        AdHelper.initAds();
-                                        AdHelper.showInterstitialAd(
-                                            onComplete: () {
-                                              navigateToSection(index);
-                                            });
-                                      }
-                                    },
-                                    child:
-                                    Container(
-                                      margin: EdgeInsets.symmetric(
-                                          vertical: 8, horizontal: 20),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(20),
-                                        color: Colors.white,
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.black26,
-                                            spreadRadius: 1,
-                                            blurRadius: 6,
-                                          ),
-                                        ],
-                                      ),
-                                      child: Column(
-                                        mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
-                                        children: [
-                                          Image.asset(
-                                            imgData[index],
-                                            width: 100,
-                                          ),
-                                          Text(
-                                            titles[index],
-                                            style: TextStyle(
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                    )
-                  ],
-                ),
+                  )
+                ],
               ),
             ),
           ),
-          bottomNavigationBar: BottomNavigationBar(
-            items: const <BottomNavigationBarItem>[
-              BottomNavigationBarItem(
-                icon: Icon(Icons.home),
-                label: 'Home',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.chat),
-                label: 'Chat',
-              ),
-            ],
-            currentIndex: _selectedIndex,
-            selectedItemColor: Colors.amber[800],
-            onTap: _onItemTapped,
-          ),
-        ));
+        ),
+        // bottomNavigationBar: BottomNavigationBar(
+        //   items: const <BottomNavigationBarItem>[
+        //     BottomNavigationBarItem(
+        //       icon: Icon(Icons.home),
+        //       label: 'Home',
+        //     ),
+        //     BottomNavigationBarItem(
+        //       icon: Icon(Icons.chat),
+        //       label: 'Chat',
+        //     ),
+        //   ],
+        //   currentIndex: _selectedIndex,
+        //   selectedItemColor: Colors.amber[800],
+        //   onTap: _onItemTapped,
+        // ),
+            ),
+      );
   }
 }

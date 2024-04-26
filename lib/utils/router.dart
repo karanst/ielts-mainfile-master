@@ -7,6 +7,7 @@ import 'package:ielts/exam_panel.dart/screens/home/home_screen.dart';
 import 'package:ielts/exam_panel.dart/screens/introduction/introduction.dart';
 import 'package:ielts/exam_panel.dart/screens/splash/splash_screen.dart';
 import 'package:ielts/screens/credits_screen.dart';
+import 'package:ielts/screens/dashboard.dart';
 import 'package:ielts/screens/forums_screen.dart';
 import 'package:ielts/screens/listening_screen.dart';
 import 'package:ielts/screens/premium_screen.dart';
@@ -38,7 +39,7 @@ class Router {
                   title: '',
                 ));
       case RoutePaths.home:
-        return MaterialPageRoute<Widget>(builder: (_) => HomeScreen());
+        return MaterialPageRoute<Widget>(builder: (_) => DashboardScreen());
       case RoutePaths.vocabulary:
         return MaterialPageRoute<Widget>(builder: (_) => VocabularyScreen());
       case RoutePaths.writing:

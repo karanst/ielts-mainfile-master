@@ -44,30 +44,32 @@ class _ViewProfileScreenState extends State<ViewProfileScreen> {
                 style:
                     TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
               ),
-              Text(
-                  MyDateUtil.getLastMessageTime(
-                    context: context,
-                    time: widget.user.createdAt,
-                    showYear: true,
-                  ),
-                  style: const TextStyle(color: Colors.black54, fontSize: 16)),
+              // Text(
+              //     MyDateUtil.getLastMessageTime(
+              //       context: context,
+              //       time: widget.user.createdAt == null || widget.user.createdAt == '' ?
+              //           ''
+              //       : widget.user.createdAt,
+              //       showYear: true,
+              //     ),
+              //     style: const TextStyle(color: Colors.black54, fontSize: 16)),
             ],
           ),
           //body
           body: Padding(
-            padding: EdgeInsets.symmetric(horizontal: mq.width * .05),
+            padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * .05),
             child: SingleChildScrollView(
               child: Column(
                 children: [
                   // for adding some space
-                  SizedBox(width: mq.width, height: mq.height * .03),
+                  SizedBox(width: MediaQuery.of(context).size.width, height: MediaQuery.of(context).size.height * .03),
 
                   //user profile picture
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(mq.height * .1),
+                    borderRadius: BorderRadius.circular(MediaQuery.of(context).size.height * .1),
                     child: CachedNetworkImage(
-                      width: mq.height * .2,
-                      height: mq.height * .2,
+                      width: MediaQuery.of(context).size.height * .2,
+                      height: MediaQuery.of(context).size.height * .2,
                       fit: BoxFit.cover,
                       imageUrl: widget.user.image,
                       errorWidget: (context, url, error) => const CircleAvatar(
@@ -76,13 +78,13 @@ class _ViewProfileScreenState extends State<ViewProfileScreen> {
                   ),
 
                   // for adding some space
-                  SizedBox(height: mq.height * .03),
+                  SizedBox(height: MediaQuery.of(context).size.height * .03),
 
                   // user email label
                   Text(widget.user.email,
                       style:
                           const TextStyle(color: Colors.black54, fontSize: 16)),
-                  SizedBox(height: mq.height * .01),
+                  SizedBox(height: MediaQuery.of(context).size.height * .01),
 
                   // user email label
                   Row(

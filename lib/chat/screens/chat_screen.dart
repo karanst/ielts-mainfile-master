@@ -189,14 +189,14 @@ String toId= '';
                             if (_list.isNotEmpty) {
                               if(toId ==''){
                                 toId =_list[0].told;
-                                print(toId);
+                                print('---->>> ${toId}');
                               }
 
                               return ListView.builder(
                                   reverse: true,
                                   itemCount: _list.length,
                                   padding:
-                                      EdgeInsets.only(top: mq.height * .01),
+                                      EdgeInsets.only(top: MediaQuery.of(context).size.height * .01),
                                   physics: const BouncingScrollPhysics(),
                                   itemBuilder: (context, index) {
                                     return InkWell(
@@ -230,7 +230,7 @@ String toId= '';
                   //show imgogi
                   if (_showEmogi)
                     SizedBox(
-                      height: mq.height * .35,
+                      height: MediaQuery.of(context).size.height * .35,
                       // child: EmojiPicker(
                       //   textEditingController: _textController,
                       //   // config: Config(
@@ -275,10 +275,10 @@ String toId= '';
                   ),
                 ),
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(mq.height * .1),
+                  borderRadius: BorderRadius.circular(MediaQuery.of(context).size.height * .1),
                   child: CachedNetworkImage(
-                    width: mq.height * .05,
-                    height: mq.height * .05,
+                    width: MediaQuery.of(context).size.height * .05,
+                    height: MediaQuery.of(context).size.height * .05,
                     fit: BoxFit.cover,
                     imageUrl:
                         list.isNotEmpty ? list[0].image : widget.user.image,
@@ -324,7 +324,7 @@ String toId= '';
   Widget _chatInput() {
     return Padding(
       padding: EdgeInsets.symmetric(
-          vertical: mq.height * .01, horizontal: mq.width * 0.03),
+          vertical: MediaQuery.of(context).size.height * .01, horizontal: MediaQuery.of(context).size.width * 0.03),
       child: Row(
         children: [
           Expanded(
@@ -413,7 +413,7 @@ String toId= '';
                     ),
                   ),
                   SizedBox(
-                    width: mq.width * .02,
+                    width: MediaQuery.of(context).size.width * .02,
                   ),
                 ],
               ),
@@ -437,6 +437,7 @@ String toId= '';
                   updateTimeStamp(toId);
                 } else {
                   //simply send message
+                  print('this is message ${widget.user.poshToken}');
                   APIs.sendMessage(
                       widget.user, _textController.text, Type.text);
                 }

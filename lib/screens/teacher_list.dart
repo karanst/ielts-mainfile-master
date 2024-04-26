@@ -24,11 +24,14 @@ class _TeacherListState extends State<TeacherList> {
       backgroundColor: Colors.white,
       appBar: AppBar(
 
+        automaticallyImplyLeading: false,
         title: Text("Our Teachers"),
+        centerTitle: true,
       ),
       body: SingleChildScrollView(
 
         child: Container(
+          padding: EdgeInsets.only(top: 25),
           color: Colors.white,
           // height: 200,
 

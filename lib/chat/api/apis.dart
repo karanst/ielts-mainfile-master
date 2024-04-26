@@ -11,7 +11,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:ielts/chat/models/chat_user.dart';
-import 'package:ielts/chat/screens/home_screen.dart';
+import 'package:ielts/chat/screens/chat_main_screen.dart';
 
 import '../../utils/notification_service.dart';
 import '../models/message.dart';
@@ -58,8 +58,8 @@ class APIs {
 
           generateSimpleNotication(title, body, type, id);
 
-          Navigator.push(
-              context, MaterialPageRoute(builder: (context) => HomeScreens()));
+          // Navigator.push(
+          //     context, MaterialPageRoute(builder: (context) => ChatMainScreen()));
         }
       });
       FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
@@ -67,8 +67,8 @@ class APIs {
 
         // Handle the received message when the app is opened from a terminated state
         if (message.notification != null) {
-          Navigator.push(
-              context, MaterialPageRoute(builder: (context) => HomeScreens()));
+          // Navigator.push(
+          //     context, MaterialPageRoute(builder: (context) => ChatMainScreen()));
         }
       });
       FirebaseMessaging.instance
@@ -80,7 +80,7 @@ class APIs {
 
         if(notificationData.isNotEmpty) {
 
-Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeScreens()));
+Navigator.push(context, MaterialPageRoute(builder: (context)=>ChatMainScreen()));
         }
 
       });
@@ -109,7 +109,7 @@ Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeScreens()));
             HttpHeaders.contentTypeHeader: 'application/json',
             HttpHeaders.authorizationHeader:
                 'key=AAAAYYkGFX8:APA91bEUfd_H-QV08dJ6Qa3tXFUPi1Svpyd7Wyvso5ePTt-KYa8p9DYH7lmghDPZd7TvOGtAaoB57fs6BUP2d83ZWqdwHD1QMxQkhLLL_3DEZb8DwO7_cJEjRvoxTh5Hzbw91Dy1qLIt'
-            // 'AAAAQ0Bf7ZA:APA91bGd5IN5v43yedFDo86WiSuyTERjmlr4tyekbw_YW6JrdLFblZcbHdgjDmogWLJ7VD65KGgVbETS0Px7LnKk8NdAz4Z-AsHRp9WoVfArA5cNpfMKcjh_MQI-z96XQk5oIDUwx8D1'
+            // 'AAAAQ0Bf7ZA:APA91bGd5IN5v43yedFDo86WiSuyTERjmlr4tyekbw_YW6JrdLFblZcbHdgjDmogWLJ7VD65KGgVbETS0Px7LnKk8NdAz4Z-AsHRp9WoVfArA5cNpfMKcjh_MediaQuery.of(context).sizeI-z96XQk5oIDUwx8D1'
           },
           body: jsonEncode(body));
       log('Response status: ${res.statusCode}');
@@ -184,7 +184,7 @@ Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeScreens()));
             HttpHeaders.contentTypeHeader: 'application/json',
             HttpHeaders.authorizationHeader:
                 'key=AAAAYYkGFX8:APA91bEUfd_H-QV08dJ6Qa3tXFUPi1Svpyd7Wyvso5ePTt-KYa8p9DYH7lmghDPZd7TvOGtAaoB57fs6BUP2d83ZWqdwHD1QMxQkhLLL_3DEZb8DwO7_cJEjRvoxTh5Hzbw91Dy1qLIt'
-            // 'AAAAQ0Bf7ZA:APA91bGd5IN5v43yedFDo86WiSuyTERjmlr4tyekbw_YW6JrdLFblZcbHdgjDmogWLJ7VD65KGgVbETS0Px7LnKk8NdAz4Z-AsHRp9WoVfArA5cNpfMKcjh_MQI-z96XQk5oIDUwx8D1'
+            // 'AAAAQ0Bf7ZA:APA91bGd5IN5v43yedFDo86WiSuyTERjmlr4tyekbw_YW6JrdLFblZcbHdgjDmogWLJ7VD65KGgVbETS0Px7LnKk8NdAz4Z-AsHRp9WoVfArA5cNpfMKcjh_MediaQuery.of(context).sizeI-z96XQk5oIDUwx8D1'
           },
           body: jsonEncode(body));
       log('Response status: ${res.statusCode}');
@@ -201,7 +201,7 @@ Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeScreens()));
       uid: user.uid,
       name: user.displayName.toString(),
       email: user.email.toString(),
-      about: "Hey, I'm using We Chat!",
+      about: "Hey, I'm using Chat!",
       image: user.photoURL.toString(),
       createdAt: '',
       isOnline: false,
@@ -326,8 +326,9 @@ Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeScreens()));
     final ref = firestore
         .collection('chats/${getConversationID(chatUser.uid)}/messages/');
 
-    await ref.doc(time).set(message.toJson()).then((value) =>
-        sendPushNotification(chatUser, type == Type.text ? msg : type == Type.image ? 'image' : 'audio', chatUser.name));
+    // await ref.doc(time).set(message.toJson()).then((value) =>
+        sendPushNotification(chatUser, type == Type.text ? msg : type == Type.image ? 'image' : 'audio', chatUser.name);
+    // );
   }
 
   // for adding an user to my user when first message is send
@@ -373,11 +374,13 @@ Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeScreens()));
 //update  online for lst cyive status of user
 
   static Future<void> updateActiveStatus(bool isOnline) async {
+
     firestore.collection('users').doc(user.uid).update({
       'is_online': isOnline,
       'last_active': DateTime.now().microsecondsSinceEpoch.toString(),
       'posh_token': me.poshToken,
     });
+    print('===***${me.poshToken}');
   }
 
   //send chat image

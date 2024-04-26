@@ -279,7 +279,7 @@ class _MessageCaedState extends State<MessageCaed> {
               // Divider(
 
               //   color: Colors.black54,
-              //   endIndent: mq.width * .04,
+              //   endIndent: MediaQuery.of(context).size.width * .04,
               //   indent: MediaQuery.of(context).size.height * .04,
               // ),
 

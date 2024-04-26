@@ -9,7 +9,7 @@
 // import 'package:ielts/chat/halper/form.dart';
 //
 // import 'package:ielts/chat/screens/auth/sign_up_page.dart';
-// import 'package:ielts/chat/screens/home_screen.dart';
+// import 'package:ielts/chat/screens/chat_main_screen.dart';
 // import '../../api/apis.dart';
 //
 // import '../../main.dart';
@@ -42,7 +42,7 @@
 //
 //   @override
 //   Widget build(BuildContext context) {
-//     final mq = MediaQuery.of(context).size;
+//     final MediaQuery.of(context).size = MediaQuery.of(context).size;
 //     return Scaffold(
 //       body: SingleChildScrollView(
 //         child: Container(
@@ -50,17 +50,17 @@
 //           child: Stack(
 //             children: [
 //               AnimatedPositioned(
-//                 top: mq.height * 0.10,
-//                 right: isAnimate ? mq.width * 0.25 : mq.width * 0.5,
-//                 width: mq.width * 0.5,
+//                 top: MediaQuery.of(context).size.height * 0.10,
+//                 right: isAnimate ? MediaQuery.of(context).size.width * 0.25 : MediaQuery.of(context).size.width * 0.5,
+//                 width: MediaQuery.of(context).size.width * 0.5,
 //                 duration: Duration(seconds: 2),
 //                 child: Image.asset('assets/icon.png'),
 //               ),
 //               Positioned(
-//                 bottom: mq.height * 0.20, // Adjusted the bottom position
-//                 right: mq.width * 0.05,
-//                 width: mq.width * 0.9,
-//                 height: mq.height * 0.45,
+//                 bottom: MediaQuery.of(context).size.height * 0.20, // Adjusted the bottom position
+//                 right: MediaQuery.of(context).size.width * 0.05,
+//                 width: MediaQuery.of(context).size.width * 0.9,
+//                 height: MediaQuery.of(context).size.height * 0.45,
 //                 child: Column(
 //                   mainAxisAlignment: MainAxisAlignment.center,
 //                   children: [

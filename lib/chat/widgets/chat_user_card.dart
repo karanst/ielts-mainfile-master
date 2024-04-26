@@ -27,7 +27,7 @@ class _ChatUserCardState extends State<ChatUserCard> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: EdgeInsets.symmetric(horizontal: mq.width * .04, vertical: 4),
+      margin: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       // color: Colors.blue.shade100,
       elevation: 0.5,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
@@ -56,10 +56,10 @@ class _ChatUserCardState extends State<ChatUserCard> {
                         builder: (_) => ProfileDialog(user: widget.user));
                   },
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(mq.height * .03),
+                    borderRadius: BorderRadius.circular(8),
                     child: CachedNetworkImage(
-                      width: mq.height * .055,
-                      height: mq.height * .055,
+                      width: MediaQuery.of(context).size.width * .055,
+                      height: MediaQuery.of(context).size.height * .055,
                       imageUrl: widget.user.image,
                       errorWidget: (context, url, error) => const CircleAvatar(
                           child: Icon(CupertinoIcons.person)),

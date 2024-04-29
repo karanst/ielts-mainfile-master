@@ -376,7 +376,7 @@ String toId= '';
                         // for hiding bottom sheet
 
                          APIs.sendChatImage(widget.user, File(i.path));
-                        updateTimeStamp(toId);
+                        // updateTimeStamp(toId);
 
                         setState(() {
                           _isUploading = false;
@@ -434,14 +434,14 @@ String toId= '';
                   //on first message (add user to my_user collection of chat user)
                   APIs.sendFirstMessage(
                       widget.user, _textController.text, Type.text);
-                  updateTimeStamp(toId);
+                  // updateTimeStamp(toId);
                 } else {
                   //simply send message
                   print('this is message ${widget.user.poshToken}');
                   APIs.sendMessage(
                       widget.user, _textController.text, Type.text);
                 }
-                updateTimeStamp(toId);
+                // updateTimeStamp(toId);
 
                 _textController.text = '';
               }

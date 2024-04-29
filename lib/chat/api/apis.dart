@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+// import 'dart:js';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fcm_config/fcm_config.dart';
@@ -21,15 +22,16 @@ class APIs {
   static FirebaseAuth auth = FirebaseAuth.instance;
 //for messaing firebase message
   static FirebaseMessaging fMessaging = FirebaseMessaging.instance;
-  static Future<void> getSelfInfo() async {
+
+  static Future<void> getSelfInfo(BuildContext context) async {
     await firestore.collection('users').doc(user.uid).get().then((user) async {
       if (user.exists) {
         me = ChatUser.fromJson(user.data()!);
 
-        // await getFirebaseMessagingToken();
+        await getFirebaseMessagingToken(context);
         APIs.updateActiveStatus(true);
       } else {
-        await createUser().then((value) => getSelfInfo());
+        await createUser().then((value) => getSelfInfo(context));
       }
     });
   }
@@ -78,10 +80,10 @@ class APIs {
         var notificationData = message.data;
 
 
-        if(notificationData.isNotEmpty) {
-
-Navigator.push(context, MaterialPageRoute(builder: (context)=>ChatMainScreen()));
-        }
+//         if(notificationData.isNotEmpty) {
+//
+// Navigator.push(context, MaterialPageRoute(builder: (context)=>ChatMainScreen()));
+//         }
 
       });
     });
@@ -326,9 +328,9 @@ Navigator.push(context, MaterialPageRoute(builder: (context)=>ChatMainScreen()))
     final ref = firestore
         .collection('chats/${getConversationID(chatUser.uid)}/messages/');
 
-    // await ref.doc(time).set(message.toJson()).then((value) =>
-        sendPushNotification(chatUser, type == Type.text ? msg : type == Type.image ? 'image' : 'audio', chatUser.name);
-    // );
+    await ref.doc(time).set(message.toJson()).then((value) =>
+        sendPushNotification(chatUser, type == Type.text ? msg : type == Type.image ? 'image' : 'audio', chatUser.name)
+    );
   }
 
   // for adding an user to my user when first message is send
@@ -373,14 +375,23 @@ Navigator.push(context, MaterialPageRoute(builder: (context)=>ChatMainScreen()))
   }
 //update  online for lst cyive status of user
 
+
   static Future<void> updateActiveStatus(bool isOnline) async {
 
-    firestore.collection('users').doc(user.uid).update({
+    String? token;
+    await fMessaging.getToken().then((t) {
+      if (t != null) {
+        token = t;
+        log('Push Token: $t');
+      }
+    });
+
+   await firestore.collection('users').doc(user.uid).update({
       'is_online': isOnline,
       'last_active': DateTime.now().microsecondsSinceEpoch.toString(),
-      'posh_token': me.poshToken,
+      'posh_token': token ?? '',
     });
-    print('===***${me.poshToken}');
+    print('===***${token}');
   }
 
   //send chat image

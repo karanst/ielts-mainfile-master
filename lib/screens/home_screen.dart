@@ -69,7 +69,6 @@ class _HomeScreenState extends State<HomeScreen>
   FacebookBannerAd? facebookBannerAd;
   @override
   void initState() {
-    print("Home screen init state");
     initPlatformState();
     getPremium();
     _controller = AnimationController(vsync: this, duration: duration);
@@ -497,3 +496,5 @@ class _HomeScreenState extends State<HomeScreen>
       );
   }
 }
+
+

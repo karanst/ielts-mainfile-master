@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_inapp_purchase/flutter_inapp_purchase.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:ielts/chat/api/apis.dart';
@@ -71,7 +72,7 @@ class _DashboardScreenState extends State<DashboardScreen>
   final ams = AdMobService();
   MyAds ads = MyAds();
   FacebookBannerAd? facebookBannerAd;
-  List<Widget> items=[ HomeScreen(), TeacherList(), ChatMainScreen() ];
+  List<Widget> items=[ HomeScreen(), TeacherList(),  APIs.auth.currentUser != null ? ChatMainScreen() : SplashScreens() ];
   @override
   void initState() {
     print("Home screen init state");
@@ -255,16 +256,92 @@ class _DashboardScreenState extends State<DashboardScreen>
     });
 
     // Handle navigation to different pages here
-    Example:
-    if (index == 2) {
-      if (APIs.auth.currentUser != null) {
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (_) => ChatMainScreen()));
-      } else {
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (_) => LoginScreen1(title: 'Login',)));
-      }
-    }
+    // Example:
+    // if (index == 2) {
+    //   if (APIs.auth.currentUser != null) {
+    //     Navigator.pushReplacement(
+    //         context, MaterialPageRoute(builder: (_) => ChatMainScreen()));
+    //   } else {
+    //     Navigator.pushReplacement(
+    //         context, MaterialPageRoute(builder: (_) => LoginScreen1(title: 'Login',)));
+    //   }
+    // }
+  }
+  DateTime timeBackPressed = DateTime.now();
+
+  exitConfirmationDialog() {
+    return AlertDialog(
+      backgroundColor: Colors.white,
+      title: const Text('Exit App'),
+      content: const Text('Are you sure you want to exit?'),
+      actions: [
+        InkWell(
+          onTap: (){
+            Navigator.of(context).pop(true);
+          },
+          child: Container(
+            width: 67,
+            height: 32,
+            decoration: ShapeDecoration(
+              gradient: const LinearGradient(
+                begin: Alignment(0.00, -1.00),
+                end: Alignment(0, 1),
+                colors: [Color(0xFF178FFF), Color(0x661D8CF2)],
+              ),
+              shape: RoundedRectangleBorder(
+                side: const BorderSide(color: Color(0x7F499CC0)),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              shadows: const [
+                BoxShadow(
+                  color: Color(0x3F000000),
+                  blurRadius: 10,
+                  offset: Offset(0, 4),
+                  spreadRadius: 0,
+                )
+              ],
+            ),
+            child:  const Center(
+                child: Text(
+                  'YES',
+                  style: TextStyle(color: Colors.white),
+                )) ,
+          ),
+        ),  InkWell(
+          onTap: (){
+            Navigator.of(context).pop(false);
+          },
+          child: Container(
+            width: 67,
+            height: 32,
+            decoration: ShapeDecoration(
+              gradient: LinearGradient(
+                begin: Alignment(0.00, -1.00),
+                end: Alignment(0, 1),
+                colors: [Color(0xFF178FFF), Color(0x661D8CF2)],
+              ),
+              shape: RoundedRectangleBorder(
+                side: BorderSide(color: Color(0x7F499CC0)),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              shadows: const [
+                BoxShadow(
+                  color: Color(0x3F000000),
+                  blurRadius: 10,
+                  offset: Offset(0, 4),
+                  spreadRadius: 0,
+                )
+              ],
+            ),
+            child:  const Center(
+                child: Text(
+                  'NO',
+                  style: TextStyle(color: Colors.white),
+                )) ,
+          ),
+        ),
+      ],
+    );
   }
 
   @override
@@ -277,11 +354,13 @@ class _DashboardScreenState extends State<DashboardScreen>
     height = MediaQuery.of(context).size.height;
     width = MediaQuery.of(context).size.width;
 
-    return WillPopScope(
-        onWillPop: () async {
-          // return SystemChannels.platform.invokeMethod('SystemNavigator.pop');
-          SystemChannels.platform.invokeMethod('SystemNavigator.pop');
-          return true;
+    return PopScope(
+        onPopInvoked: (bool v) async {
+          final shouldExit = await showDialog(
+            context: context,
+            builder: (context) => exitConfirmationDialog(),
+          );
+          return shouldExit ?? false;
         },
         child: Scaffold(
           backgroundColor: Colors.white,

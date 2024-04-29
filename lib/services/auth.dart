@@ -1,8 +1,14 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:ielts/chat/api/apis.dart';
 import 'package:ielts/utils/app_constants.dart';
+
+import 'api.dart';
 
 final FirebaseAuth _auth = FirebaseAuth.instance;
 final GoogleSignIn googleSignIn = GoogleSignIn();
@@ -82,6 +88,7 @@ Future<String> signIn(String email, String password) async {
     name = user?.displayName??'';
     email = user?.email??'';
     userId = user?.uid??'';
+
   } catch (error) {
 
    if(error is FirebaseAuthException){
@@ -116,8 +123,17 @@ Future<String> signIn(String email, String password) async {
 
   return user.uid;
 }
+String? pushToken;
+ FirebaseMessaging fMessaging = FirebaseMessaging.instance;
+Future<String> signUp(String email, String password, String firstName, BuildContext context) async {
 
-Future<String> signUp(String email, String password, String firstName) async {
+  await fMessaging.requestPermission();
+  await fMessaging.getToken().then((t) {
+    if (t != null) {
+      pushToken = t;
+      log('Push Token: $t');
+    }
+  });
   DateTime dateTime = DateTime.now();
   Timestamp specificTimeStamp = Timestamp.fromDate(dateTime);
   User? user;
@@ -132,7 +148,7 @@ print(firstName);
     FirebaseFirestore.instance.collection('users').doc(user?.uid).set({
       "is_online": false,
       "last_active": "",
-      "posh_token": "",
+      "posh_token": pushToken,
       "uid": user?.uid,
       "name": firstName,
       "email": email,

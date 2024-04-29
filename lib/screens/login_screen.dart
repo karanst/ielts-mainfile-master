@@ -125,7 +125,7 @@ class _LoginScreenState extends State<LoginScreen1>
         Get.offAll(DashboardScreen());
       } else {
         await signUp(emailInputController.text, passwordInputController.text,
-            firstNameInputController.text);
+            firstNameInputController.text, context);
 
         Get.offAll(DashboardScreen());
         // Navigator.pushReplacementNamed(context, RoutePaths.home);

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_instance/src/bindings_interface.dart';
 import 'package:get/get_navigation/src/routes/default_route.dart';
+import 'package:ielts/chat/screens/chat_main_screen.dart';
 import 'package:ielts/exam_panel.dart/controllers/question_page/question_paper_controller.dart';
 import 'package:ielts/exam_panel.dart/screens/home/home_screen.dart';
 import 'package:ielts/exam_panel.dart/screens/introduction/introduction.dart';
@@ -30,7 +31,7 @@ class Router {
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case RoutePaths.chats:
-        return MaterialPageRoute<Widget>(builder: (_) => SplashScreens());
+        return MaterialPageRoute<Widget>(builder: (_) => ChatMainScreen());
       case RoutePaths.root:
         return MaterialPageRoute<Widget>(builder: (_) => SplashScreen());
       case RoutePaths.login:

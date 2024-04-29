@@ -49,7 +49,7 @@ FirebaseAuth auth = FirebaseAuth.instance;
   void initState() {
 
     super.initState();
-   APIs.getSelfInfo();
+   APIs.getSelfInfo(context);
 
     _controller = TabController(length: 2, vsync: this);
 
@@ -74,324 +74,322 @@ FirebaseAuth auth = FirebaseAuth.instance;
   Widget build(BuildContext context) {
     _adController.ad = AdHelper.loadNativeAd(adController: _adController);
 
-    return GestureDetector(
-      onTap: () => FocusScope.of(context).unfocus(),
-      child: WillPopScope(
-        onWillPop: () {
-          if (_isSearching) {
-            setState(() {
-              _isSearching = !_isSearching;
-            });
-            return Future.value(false);
-          } else {
-            return Future.value(true);
-          }
-        },
-        child: DefaultTabController(
+    return WillPopScope(
+      onWillPop: () {
+        if (_isSearching) {
+          setState(() {
+            _isSearching = !_isSearching;
+          });
+          return Future.value(false);
+        } else {
+          return Future.value(true);
+        }
+      },
+      child: DefaultTabController(
 
-        length: 2,
-        child: Scaffold(
-            // bottomNavigationBar: _adController.ad != null &&
-            //         _adController.adLoaded.isTrue
-            //     ? SizedBox(
-            //         height: 120,
-            //         child: AdWidget(
-            //             ad: _adController.ad!), // Create and load a new ad object
-            //       )
-            //     : null,
-          
-            //appbar
-            backgroundColor: Colors.white,
-            appBar: AppBar(
-              backgroundColor: Colors.teal,
-              elevation: 0, // Removes shadow
-              leading: IconButton(
-                onPressed: () {},
-                icon: Icon(
-                  CupertinoIcons.home,
-                  color: Colors.black,
+      length: 2,
+      child: Scaffold(
+          // bottomNavigationBar: _adController.ad != null &&
+          //         _adController.adLoaded.isTrue
+          //     ? SizedBox(
+          //         height: 120,
+          //         child: AdWidget(
+          //             ad: _adController.ad!), // Create and load a new ad object
+          //       )
+          //     : null,
+
+          //appbar
+          backgroundColor: Colors.white,
+          appBar: AppBar(
+            automaticallyImplyLeading: false,
+            backgroundColor: Colors.teal,
+            elevation: 0, // Removes shadow
+            // leading: IconButton(
+            //   onPressed: () {},
+            //   icon: Icon(
+            //     CupertinoIcons.home,
+            //     color: Colors.black,
+            //   ),
+            // ),
+            centerTitle: true,
+            title: _isSearching
+                ? TextField(
+              autofocus: true,
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 18,
+              ),
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                hintText: 'Search name or email...',
+                hintStyle: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 16,
                 ),
               ),
-              centerTitle: true,
-              title: _isSearching
-                  ? TextField(
-                autofocus: true,
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 18,
-                ),
-                decoration: InputDecoration(
-                  border: InputBorder.none,
-                  hintText: 'Search name or email...',
-                  hintStyle: TextStyle(
-                    color: Colors.grey,
-                    fontSize: 16,
-                  ),
-                ),
-                onChanged: (val) {
-                  // Search logic
-                  _searchList.clear();
-                  for (var i in _list) {
-                    if (i.name.toLowerCase().contains(val.toLowerCase()) ||
-                        i.email.toLowerCase().contains(val.toLowerCase())) {
-                      _searchList.add(i);
-                    }
+              onChanged: (val) {
+                // Search logic
+                _searchList.clear();
+                for (var i in _list) {
+                  if (i.name.toLowerCase().contains(val.toLowerCase()) ||
+                      i.email.toLowerCase().contains(val.toLowerCase())) {
+                    _searchList.add(i);
                   }
-                  setState(() {
-                    _searchList;
-                  });
-                },
-              )
-                  : Text(
-                'IELTS- YAN',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 22,
-                ),
-              ),
-              actions: [
-                IconButton(
-                  onPressed: () {
-                    if (!premium_user_google_play) {
-                      ads.showInterstitialAd();
-                      // AdHelper.initAds();
-                      // AdHelper.showInterstitialAd();
-                    }
-                    setState(() {
-                      _isSearching = !_isSearching;
-                    });
-                  },
-                  icon: Icon(
-                    _isSearching
-                        ? CupertinoIcons.clear_circled_solid
-                        : Icons.search,
-                    color: Colors.black,
-                  ),
-                ),
-                IconButton(
-                  onPressed: () {
-                    if (!premium_user_google_play) {
-                      ads.showInterstitialAd();
-          
-                      // AdHelper.showInterstitialAd();
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => ProfileScreen(
-                            user: APIs.me,
-                          ),
-                        ),
-                      );
-                    }
-                  },
-                  icon: Icon(
-                    Icons.more_vert,
-                    color: Colors.black,
-                  ),
-                ),
-              ],
-              bottom: TabBar(
-                // padding: EdgeInsets.all(10),
-                labelColor: Colors.black,
-                indicatorColor: Colors.white,
-                indicator: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10))
-                ),
-                labelStyle: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),
-                indicatorSize: TabBarIndicatorSize.tab,
-                tabs: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text('Chat'),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text('Group'),
-                  ),
-                ],
+                }
+                setState(() {
+                  _searchList;
+                });
+              },
+            )
+                : Text(
+              'IELTS- YAN',
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+                fontSize: 22,
               ),
             ),
-            body: TabBarView(
-
-              children: [
-                Container(
-                  child: StreamBuilder(
-                    stream: APIs.getAllUsers(),
-                    builder: (BuildContext context, snapshot) {
-                      switch (snapshot.connectionState) {
-
-                        case ConnectionState.waiting:
-                        case ConnectionState.none:
-                          return const Center(child: CircularProgressIndicator());
-
-                        case ConnectionState.active:
-                        case ConnectionState.done:
-                          final data = snapshot.data?.docs;
-                          print(data);
-                          _list =
-                              _list = data
-                              ?.map((e) => ChatUser.fromJson(e.data()))
-                              .where((user) => user.uid != auth.currentUser!.uid)
-                              .toList() ?? [];
-
-                          print('-----------------------------');
-                          if (_list.isNotEmpty) {
-
-                            return
-                              ListView.builder(
-                              itemCount:
-                              _isSearching ? _searchList.length : _list.length,
-                              physics: BouncingScrollPhysics(),
-                              // padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * .01),
-                              itemBuilder: (context, index) {
-
-                                return
-                                  ChatUserCard(
-                                  user:
-                                  _isSearching ? _searchList[index] : _list[index],
-                                );
-                              },
-                            );
-                          } else {
-                            return Center(child: Text('No connection found'));
-                          }
-                      }
-                    },
-                  ),
+            actions: [
+              IconButton(
+                onPressed: () {
+                  if (!premium_user_google_play) {
+                    ads.showInterstitialAd();
+                    // AdHelper.initAds();
+                    // AdHelper.showInterstitialAd();
+                  }
+                  setState(() {
+                    _isSearching = !_isSearching;
+                  });
+                },
+                icon: Icon(
+                  _isSearching
+                      ? CupertinoIcons.clear_circled_solid
+                      : Icons.search,
+                  color: Colors.black,
                 ),
-                //for chat view,
-                Container(
-                  child: StreamBuilder(
-                    stream: FirebaseFirestore.instance.collection('Teacher').orderBy('Timestamp', descending: true).snapshots(),
-                    builder: (BuildContext context,  snapshot) {
-                      if (snapshot.hasData) {
-                        FirebaseAuth auth = FirebaseAuth.instance;
-                        return  ListView.builder(
-                          itemCount: snapshot.data!.docs.length,
-                          itemBuilder: (context, i) {
-                            // Retrieve the current document data
-                            final doc = snapshot.data!.docs[i];
-                            // Get the list of members' IDs
-                            List<String> membersID = List<String>.from(doc['membersID']);
-                            List<Map<String, dynamic>> recentChat = List<Map<String, dynamic>>.from(doc['RecentChat']);
+              ),
+              IconButton(
+                onPressed: () {
+                  if (!premium_user_google_play) {
+                    ads.showInterstitialAd();
 
-                            // Check if the current user ID is in the members' IDs list
-                            bool isMember = false;
-                            if(auth.currentUser!.uid.isNotEmpty){
-                              isMember = membersID.contains(auth.currentUser!.uid);
-                            }
+                    // AdHelper.showInterstitialAd();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ProfileScreen(
+                          user: APIs.me,
+                        ),
+                      ),
+                    );
+                  }
+                },
+                icon: Icon(
+                  Icons.more_vert,
+                  color: Colors.black,
+                ),
+              ),
+            ],
+            bottom: TabBar(
+              // padding: EdgeInsets.all(10),
+              labelColor: Colors.black,
+              indicatorColor: Colors.white,
+              indicator: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10))
+              ),
+              labelStyle: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),
+              indicatorSize: TabBarIndicatorSize.tab,
+              tabs: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text('Chat'),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text('Group'),
+                ),
+              ],
+            ),
+          ),
+          body: TabBarView(
 
-                            String recentChatMessage = '';
-                            String recentLastChatId = '';
-                            int recentChatLength = 0;
-                            if(recentChat.isNotEmpty) {
-                              recentChatMessage = recentChat.last['message'] ?? '';
-                              recentChatLength = recentChat.length;
-                              recentLastChatId = recentChat.last['id'] ?? '';
+            children: [
+              Container(
+                child: StreamBuilder(
+                  stream: APIs.getAllUsers(),
+                  builder: (BuildContext context, snapshot) {
+                    switch (snapshot.connectionState) {
+
+                      case ConnectionState.waiting:
+                      case ConnectionState.none:
+                        return const Center(child: CircularProgressIndicator());
+
+                      case ConnectionState.active:
+                      case ConnectionState.done:
+                        final data = snapshot.data?.docs;
+                        print(data);
+                        _list =
+                            _list = data
+                            ?.map((e) => ChatUser.fromJson(e.data()))
+                            .where((user) => user.uid != auth.currentUser!.uid)
+                            .toList() ?? [];
+
+                        print('-----------------------------');
+                        if (_list.isNotEmpty) {
+
+                          return
+                            ListView.builder(
+                            itemCount:
+                            _isSearching ? _searchList.length : _list.length,
+                            physics: BouncingScrollPhysics(),
+                            // padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * .01),
+                            itemBuilder: (context, index) {
+
+                              return
+                                ChatUserCard(
+                                user:
+                                _isSearching ? _searchList[index] : _list[index],
+                              );
+                            },
+                          );
+                        } else {
+                          return Center(child: Text('No connection found'));
+                        }
+                    }
+                  },
+                ),
+              ),
+              //for chat view,
+              Container(
+                child: StreamBuilder(
+                  stream: FirebaseFirestore.instance.collection('Teacher').orderBy('Timestamp', descending: true).snapshots(),
+                  builder: (BuildContext context,  snapshot) {
+                    if (snapshot.hasData) {
+                      FirebaseAuth auth = FirebaseAuth.instance;
+                      return  ListView.builder(
+                        itemCount: snapshot.data!.docs.length,
+                        itemBuilder: (context, i) {
+                          // Retrieve the current document data
+                          final doc = snapshot.data!.docs[i];
+                          // Get the list of members' IDs
+                          List<String> membersID = List<String>.from(doc['membersID']);
+                          List<Map<String, dynamic>> recentChat = List<Map<String, dynamic>>.from(doc['RecentChat']);
+
+                          // Check if the current user ID is in the members' IDs list
+                          bool isMember = false;
+                          if(auth.currentUser!.uid.isNotEmpty){
+                            isMember = membersID.contains(auth.currentUser!.uid);
+                          }
+
+                          String recentChatMessage = '';
+                          String recentLastChatId = '';
+                          int recentChatLength = 0;
+                          if(recentChat.isNotEmpty) {
+                            recentChatMessage = recentChat.last['message'] ?? '';
+                            recentChatLength = recentChat.length;
+                            recentLastChatId = recentChat.last['id'] ?? '';
 
 
-                            }
+                          }
 
-                            return ListTile(
-                              // User profile picture
-                              leading: InkWell(
-                                onTap: () {},
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(25.0), // Adjust the corner radius as needed
-                                  child: CachedNetworkImage(
-                                    width: 55.0, // Adjust width as needed
-                                    height: 55.0, // Adjust height as needed
-                                    imageUrl: doc['GroupImage'].toString(),
-                                    errorWidget: (context, url, error) => CircleAvatar(
-                                      child: Icon(CupertinoIcons.person),
-                                    ),
+                          return ListTile(
+                            // User profile picture
+                            leading: InkWell(
+                              onTap: () {},
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(25.0), // Adjust the corner radius as needed
+                                child: CachedNetworkImage(
+                                  width: 55.0, // Adjust width as needed
+                                  height: 55.0, // Adjust height as needed
+                                  imageUrl: doc['GroupImage'].toString(),
+                                  errorWidget: (context, url, error) => CircleAvatar(
+                                    child: Icon(CupertinoIcons.person),
                                   ),
                                 ),
                               ),
-                              subtitle: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  if(recentChat.isNotEmpty )
-                                  Text(recentChatMessage, maxLines: 1),
-                                  if(recentLastChatId != auth.currentUser!.uid && recentChat.isNotEmpty)
-                                  Container(
-                                    width: 20,
-                                    height: 20,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Colors.green,
-                                    ),
-                                    child: Center(
-                                      child: Text(recentChatLength.toString(), style: TextStyle(color: Colors.white)),
-                                    ),
+                            ),
+                            subtitle: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                if(recentChat.isNotEmpty )
+                                Text(recentChatMessage, maxLines: 1),
+                                if(recentLastChatId != auth.currentUser!.uid && recentChat.isNotEmpty)
+                                Container(
+                                  width: 20,
+                                  height: 20,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.green,
                                   ),
-                                ],
-                              ),
-                              title: Text(doc['GroupTitle'].toString()),
+                                  child: Center(
+                                    child: Text(recentChatLength.toString(), style: TextStyle(color: Colors.white)),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            title: Text(doc['GroupTitle'].toString()),
 
 
-                              trailing: isMember
-                                  ? ElevatedButton(
-                                onPressed: () async {
-                                  if(recentLastChatId != auth.currentUser!.uid){
-                                    setRecentList(doc.id);
-                                  }
+                            trailing: isMember
+                                ? ElevatedButton(
+                              onPressed: () async {
+                                if(recentLastChatId != auth.currentUser!.uid){
+                                  setRecentList(doc.id);
+                                }
 
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => TeacherGroup(teacherId: snapshot.data!.docs[i].id)));
-                                },
-                                child: Text("Chat Now"),
-                              )
-                                  : ElevatedButton(
-                                onPressed: ()  async {
-                                  if(auth.currentUser!.uid.isNotEmpty){
-    await FirebaseFirestore.instance.collection("TeacherData").snapshots().forEach((element) {
-      print('this is elemet ${element.docs[i]['TeacherId']} ${doc['GroupId']}');
-      if(
-      element.docs[i]['TeacherId'].toString() == doc['GroupId'] ){
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (_) =>
-                    AdvertisingScreen(snap: element.docs[i],)));
-      }
-    });
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => TeacherGroup(teacherId: snapshot.data!.docs[i].id)));
+                              },
+                              child: Text("Chat Now"),
+                            )
+                                : ElevatedButton(
+                              onPressed: ()  async {
+                                if(auth.currentUser!.uid.isNotEmpty){
+        await FirebaseFirestore.instance.collection("TeacherData").snapshots().forEach((element) {
+    print('this is elemet ${element.docs[i]['TeacherId']} ${doc['GroupId']}');
+    if(
+    element.docs[i]['TeacherId'].toString() == doc['GroupId'] ){
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (_) =>
+                  AdvertisingScreen(snap: element.docs[i],)));
+    }
+        });
 
-                                    // Navigator.push(
-                                    //     context,
-                                    //     MaterialPageRoute(
-                                    //         builder: (_) =>
-                                    //             AdvertisingScreen(snap: snapshot.data!.docs[i],)));
-                                    // Navigator.push(context, MaterialPageRoute(builder: (context) => TeacherGroup(teacherId: snapshot.data!.docs[i].id)));
-                                    // addMember(snapshot.data!.docs[i].id);
-                                  } else {
-                                    Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen1(title: 'Login')));
-                                  }
-                                  setState(() {});
-                                  // Handle join action (e.g., adding the current user to the group)
-                                  // Add your join group code here
-                                },
-                                child: Text("Join Now"),
-                              ),
-                            );
-                          },
-                        );
+                                  // Navigator.push(
+                                  //     context,
+                                  //     MaterialPageRoute(
+                                  //         builder: (_) =>
+                                  //             AdvertisingScreen(snap: snapshot.data!.docs[i],)));
+                                  // Navigator.push(context, MaterialPageRoute(builder: (context) => TeacherGroup(teacherId: snapshot.data!.docs[i].id)));
+                                  // addMember(snapshot.data!.docs[i].id);
+                                } else {
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen1(title: 'Login')));
+                                }
+                                setState(() {});
+                                // Handle join action (e.g., adding the current user to the group)
+                                // Add your join group code here
+                              },
+                              child: Text("Join Now"),
+                            ),
+                          );
+                        },
+                      );
 
 
-                      } else if (snapshot.hasError) {
-                        return Center(child: Text(snapshot.error.toString()),); // Handle errors
-                      } else {
-                        return Center(child: CircularProgressIndicator(),); // Display your UI with the data
-                      }
-                    },
-                  ),
+                    } else if (snapshot.hasError) {
+                      return Center(child: Text(snapshot.error.toString()),); // Handle errors
+                    } else {
+                      return Center(child: CircularProgressIndicator(),); // Display your UI with the data
+                    }
+                  },
                 ),
-                //for group view,
-          
-          
-              ],
-            ),
+              ),
+              //for group view,
+
+
+            ],
           ),
         ),
       ),

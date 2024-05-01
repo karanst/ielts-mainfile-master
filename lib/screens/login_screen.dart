@@ -111,21 +111,21 @@ class _LoginScreenState extends State<LoginScreen1>
     );
   }
 
-  Future<void> _submit() async {
+  Future<void> _submit(bool isTeacher) async {
     // if (!_formKey.currentState.validate()) {
     //   return;
     // }
     // _formKey.currentState?.save();
     try {
       if (_authMode == AuthMode.Login) {
-        await signIn(emailInputController.text, passwordInputController.text);
+        await signIn(emailInputController.text, passwordInputController.text, isTeacher);
         print('successful');
 
         // Navigator.pushReplacementNamed(context, RoutePaths.home);
         Get.offAll(DashboardScreen());
       } else {
         await signUp(emailInputController.text, passwordInputController.text,
-            firstNameInputController.text, context);
+            firstNameInputController.text, context, isTeacher);
 
         Get.offAll(DashboardScreen());
         // Navigator.pushReplacementNamed(context, RoutePaths.home);
@@ -269,9 +269,11 @@ class _LoginScreenState extends State<LoginScreen1>
     );
   }
 
-  Widget _submitButton() {
+  Widget _submitTeacherButton() {
     return TextButton(
-      onPressed: _submit,
+      onPressed: (){
+        _submit(true);
+      },
       child: Container(
         width: MediaQuery.of(context).size.width,
         padding: EdgeInsets.symmetric(vertical: ScreenUtil().setHeight(15)),
@@ -287,9 +289,37 @@ class _LoginScreenState extends State<LoginScreen1>
             ],
             color: Color(0xFF21BFBD)),
         child: Text(
-          '${_authMode == AuthMode.Login ? 'Login' : 'Register'}',
+          '${_authMode == AuthMode.Login ? 'Login as Teacher ' : 'Register as Teacher'}',
           style:
               TextStyle(fontSize: ScreenUtil().setSp(20), color: Colors.white),
+        ),
+      ),
+    );
+  }
+
+  Widget _submitButton() {
+    return TextButton(
+      onPressed: (){
+        _submit(false);
+      },
+      child: Container(
+        width: MediaQuery.of(context).size.width,
+        padding: EdgeInsets.symmetric(vertical: ScreenUtil().setHeight(15)),
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(5)),
+            boxShadow: <BoxShadow>[
+              BoxShadow(
+                  color: Colors.grey.shade200,
+                  offset: Offset(2, 4),
+                  blurRadius: 5,
+                  spreadRadius: 2)
+            ],
+            color: Color(0xFF21BFBD)),
+        child: Text(
+          '${_authMode == AuthMode.Login ? 'Login ' : 'Register '}',
+          style:
+          TextStyle(fontSize: ScreenUtil().setSp(20), color: Colors.white),
         ),
       ),
     );
@@ -541,6 +571,8 @@ class _LoginScreenState extends State<LoginScreen1>
                 _emailPasswordWidget(),
                 SizedBox(height: ScreenUtil().setHeight(20)),
                 _submitButton(),
+                SizedBox(height: ScreenUtil().setHeight(20)),
+                _submitTeacherButton(),
                 Visibility(
                   visible: _authMode == AuthMode.Login,
                   child: MaterialButton(onPressed: () {

@@ -79,7 +79,7 @@ Future<String?> signInWithGoogle() async {
   }
 }
 
-Future<String> signIn(String email, String password) async {
+Future<String> signIn(String email, String password, bool teacher) async {
   User? user;
   try {
     UserCredential result = await _auth.signInWithEmailAndPassword(
@@ -88,6 +88,32 @@ Future<String> signIn(String email, String password) async {
     name = user?.displayName??'';
     email = user?.email??'';
     userId = user?.uid??'';
+    if(teacher) {
+      await FirebaseFirestore.instance
+          .collection("TeacherData")
+          .get().then((teacher) async {
+        teacher.docs.forEach((element) {
+          if (email == element['email']) {
+            FirebaseFirestore.instance
+                .collection("TeacherData").doc(element['TeacherId']).update({
+              'TeacherId': user?.uid ?? ''
+            });
+            FirebaseFirestore.instance
+                .collection("Teacher").get().then((value) async {
+              value.docs.forEach((e) {
+                if (e.id == element.id.toString()) {
+                  FirebaseFirestore.instance
+                      .collection("Teacher").doc(e.id).update({
+                    'GroupId': user?.uid ?? ''
+                  });
+                }
+              });
+            });
+          }
+        });
+      });
+    }
+
 
   } catch (error) {
 
@@ -125,7 +151,7 @@ Future<String> signIn(String email, String password) async {
 }
 String? pushToken;
  FirebaseMessaging fMessaging = FirebaseMessaging.instance;
-Future<String> signUp(String email, String password, String firstName, BuildContext context) async {
+Future<String> signUp(String email, String password, String firstName, BuildContext context, bool isTeacher) async {
 
   await fMessaging.requestPermission();
   await fMessaging.getToken().then((t) {
@@ -155,6 +181,31 @@ print(firstName);
       "userImage": userImage,
       "timeStamp":specificTimeStamp,
     });
+    if(isTeacher) {
+      await FirebaseFirestore.instance
+          .collection("TeacherData")
+          .get().then((teacher) async {
+        teacher.docs.forEach((element) {
+          if (email == element['email']) {
+            FirebaseFirestore.instance
+                .collection("TeacherData").doc(element['TeacherId']).update({
+              'TeacherId': user?.uid ?? ''
+            });
+            FirebaseFirestore.instance
+                .collection("Teacher").get().then((value) async {
+              value.docs.forEach((e) {
+                if (e.id == element.id.toString()) {
+                  FirebaseFirestore.instance
+                      .collection("Teacher").doc(e.id).update({
+                    'GroupId': user?.uid ?? ''
+                  });
+                }
+              });
+            });
+          }
+        });
+      });
+    }
   } catch (error) {
   if(error is FirebaseAuthException){
     switch (error.code) {

@@ -278,6 +278,10 @@ class _DashboardScreenState extends State<DashboardScreen>
         InkWell(
           onTap: (){
             Navigator.of(context).pop(true);
+            _canPop = true;
+            setState(() {
+
+            });
           },
           child: Container(
             width: 67,
@@ -310,6 +314,10 @@ class _DashboardScreenState extends State<DashboardScreen>
         ),  InkWell(
           onTap: (){
             Navigator.of(context).pop(false);
+            _canPop = false;
+            setState(() {
+
+            });
           },
           child: Container(
             width: 67,
@@ -343,7 +351,7 @@ class _DashboardScreenState extends State<DashboardScreen>
       ],
     );
   }
-
+  bool _canPop = false;
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -355,13 +363,27 @@ class _DashboardScreenState extends State<DashboardScreen>
     width = MediaQuery.of(context).size.width;
 
     return PopScope(
-        onPopInvoked: (bool v) async {
-          final shouldExit = await showDialog(
-            context: context,
-            builder: (context) => exitConfirmationDialog(),
+        canPop: false,
+        onPopInvoked: (didPop) {
+          if (_canPop) return;
+          WidgetsBinding.instance.addPostFrameCallback(
+                (_) async {
+              await exitConfirmationDialog()?? false;
+
+              if (_canPop) {
+                if (!mounted) return;
+                Navigator.of(context).pop();
+              }
+            },
           );
-          return shouldExit ?? false;
         },
+        // onPopInvoked: (bool v) async {
+        //   final shouldExit = await showDialog(
+        //     context: context,
+        //     builder: (context) => exitConfirmationDialog(),
+        //   );
+        //   return shouldExit ?? false;
+        // },
         child: Scaffold(
           backgroundColor: Colors.white,
           body: items[_selectedIndex],

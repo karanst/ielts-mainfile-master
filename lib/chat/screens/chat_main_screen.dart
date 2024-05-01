@@ -1,4 +1,3 @@
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -21,7 +20,6 @@ import '../../screens/adverting/advertining_screen.dart';
 import '../api/apis.dart';
 import '../models/message.dart';
 
-
 class ChatMainScreen extends StatefulWidget {
   const ChatMainScreen({super.key});
 
@@ -29,11 +27,12 @@ class ChatMainScreen extends StatefulWidget {
   State<ChatMainScreen> createState() => _ChatMainScreenState();
 }
 
-class _ChatMainScreenState extends State<ChatMainScreen> with TickerProviderStateMixin {
+class _ChatMainScreenState extends State<ChatMainScreen>
+    with TickerProviderStateMixin {
   //for storing all user
   List<ChatUser> _list = [];
   //for searing user
-FirebaseAuth auth = FirebaseAuth.instance;
+  FirebaseAuth auth = FirebaseAuth.instance;
   final List<ChatUser> _searchList = [];
   // for storing search status
   bool _isSearching = false;
@@ -43,13 +42,10 @@ FirebaseAuth auth = FirebaseAuth.instance;
 
   DocumentSnapshot? teacherData;
 
-
-
   @override
   void initState() {
-
     super.initState();
-   APIs.getSelfInfo(context);
+    APIs.getSelfInfo(context);
 
     _controller = TabController(length: 2, vsync: this);
 
@@ -70,6 +66,7 @@ FirebaseAuth auth = FirebaseAuth.instance;
     _controller!.dispose();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     _adController.ad = AdHelper.loadNativeAd(adController: _adController);
@@ -86,9 +83,8 @@ FirebaseAuth auth = FirebaseAuth.instance;
         }
       },
       child: DefaultTabController(
-
-      length: 2,
-      child: Scaffold(
+        length: 2,
+        child: Scaffold(
           // bottomNavigationBar: _adController.ad != null &&
           //         _adController.adLoaded.isTrue
           //     ? SizedBox(
@@ -114,41 +110,41 @@ FirebaseAuth auth = FirebaseAuth.instance;
             centerTitle: true,
             title: _isSearching
                 ? TextField(
-              autofocus: true,
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 18,
-              ),
-              decoration: InputDecoration(
-                border: InputBorder.none,
-                hintText: 'Search name or email...',
-                hintStyle: TextStyle(
-                  color: Colors.grey,
-                  fontSize: 16,
-                ),
-              ),
-              onChanged: (val) {
-                // Search logic
-                _searchList.clear();
-                for (var i in _list) {
-                  if (i.name.toLowerCase().contains(val.toLowerCase()) ||
-                      i.email.toLowerCase().contains(val.toLowerCase())) {
-                    _searchList.add(i);
-                  }
-                }
-                setState(() {
-                  _searchList;
-                });
-              },
-            )
+                    autofocus: true,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 18,
+                    ),
+                    decoration: InputDecoration(
+                      border: InputBorder.none,
+                      hintText: 'Search name or email...',
+                      hintStyle: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 16,
+                      ),
+                    ),
+                    onChanged: (val) {
+                      // Search logic
+                      _searchList.clear();
+                      for (var i in _list) {
+                        if (i.name.toLowerCase().contains(val.toLowerCase()) ||
+                            i.email.toLowerCase().contains(val.toLowerCase())) {
+                          _searchList.add(i);
+                        }
+                      }
+                      setState(() {
+                        _searchList;
+                      });
+                    },
+                  )
                 : Text(
-              'IELTS- YAN',
-              style: TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-                fontSize: 22,
-              ),
-            ),
+                    'IELTS- YAN',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 22,
+                    ),
+                  ),
             actions: [
               IconButton(
                 onPressed: () {
@@ -195,10 +191,11 @@ FirebaseAuth auth = FirebaseAuth.instance;
               labelColor: Colors.black,
               indicatorColor: Colors.white,
               indicator: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10))
-              ),
-              labelStyle: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(10),
+                      topRight: Radius.circular(10))),
+              labelStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               indicatorSize: TabBarIndicatorSize.tab,
               tabs: [
                 Padding(
@@ -213,14 +210,12 @@ FirebaseAuth auth = FirebaseAuth.instance;
             ),
           ),
           body: TabBarView(
-
             children: [
               Container(
                 child: StreamBuilder(
                   stream: APIs.getAllUsers(),
                   builder: (BuildContext context, snapshot) {
                     switch (snapshot.connectionState) {
-
                       case ConnectionState.waiting:
                       case ConnectionState.none:
                         return const Center(child: CircularProgressIndicator());
@@ -229,27 +224,26 @@ FirebaseAuth auth = FirebaseAuth.instance;
                       case ConnectionState.done:
                         final data = snapshot.data?.docs;
                         print(data);
-                        _list =
-                            _list = data
-                            ?.map((e) => ChatUser.fromJson(e.data()))
-                            .where((user) => user.uid != auth.currentUser!.uid)
-                            .toList() ?? [];
+                        _list = _list = data
+                                ?.map((e) => ChatUser.fromJson(e.data()))
+                                .where(
+                                    (user) => user.uid != auth.currentUser!.uid)
+                                .toList() ??
+                            [];
 
                         print('-----------------------------');
                         if (_list.isNotEmpty) {
-
-                          return
-                            ListView.builder(
-                            itemCount:
-                            _isSearching ? _searchList.length : _list.length,
+                          return ListView.builder(
+                            itemCount: _isSearching
+                                ? _searchList.length
+                                : _list.length,
                             physics: BouncingScrollPhysics(),
                             // padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * .01),
                             itemBuilder: (context, index) {
-
-                              return
-                                ChatUserCard(
-                                user:
-                                _isSearching ? _searchList[index] : _list[index],
+                              return ChatUserCard(
+                                user: _isSearching
+                                    ? _searchList[index]
+                                    : _list[index],
                               );
                             },
                           );
@@ -263,142 +257,205 @@ FirebaseAuth auth = FirebaseAuth.instance;
               //for chat view,
               Container(
                 child: StreamBuilder(
-                  stream: FirebaseFirestore.instance.collection('Teacher').orderBy('Timestamp', descending: true).snapshots(),
-                  builder: (BuildContext context,  snapshot) {
+                  stream: FirebaseFirestore.instance
+                      .collection('Teacher')
+                      .orderBy('Timestamp', descending: true)
+                      .snapshots(),
+                  builder: (BuildContext context, snapshot) {
                     if (snapshot.hasData) {
                       FirebaseAuth auth = FirebaseAuth.instance;
-                      return  ListView.builder(
+                      return ListView.builder(
                         itemCount: snapshot.data!.docs.length,
                         itemBuilder: (context, i) {
                           // Retrieve the current document data
                           final doc = snapshot.data!.docs[i];
                           // Get the list of members' IDs
-                          List<String> membersID = List<String>.from(doc['membersID']);
-                          List<Map<String, dynamic>> recentChat = List<Map<String, dynamic>>.from(doc['RecentChat']);
+                          List<String> membersID =
+                              List<String>.from(doc['membersID']);
+                          List<Map<String, dynamic>> recentChat =
+                              List<Map<String, dynamic>>.from(
+                                  doc['RecentChat']);
 
                           // Check if the current user ID is in the members' IDs list
                           bool isMember = false;
-                          if(auth.currentUser!.uid.isNotEmpty){
-                            isMember = membersID.contains(auth.currentUser!.uid);
+                          bool isAdmin = false;
+                          if (auth.currentUser!.uid.isNotEmpty) {
+                            isMember =
+                                membersID.contains(auth.currentUser!.uid);
                           }
+                          if (auth.currentUser!.uid == doc['GroupId']) {
+                            isAdmin = true;
+                          }
+
+                          print('this is admin details $isAdmin ${auth.currentUser!.uid} and ${doc['GroupId']}');
 
                           String recentChatMessage = '';
                           String recentLastChatId = '';
                           int recentChatLength = 0;
-                          if(recentChat.isNotEmpty) {
-                            recentChatMessage = recentChat.last['message'] ?? '';
+                          if (recentChat.isNotEmpty) {
+                            recentChatMessage =
+                                recentChat.last['message'] ?? '';
                             recentChatLength = recentChat.length;
                             recentLastChatId = recentChat.last['id'] ?? '';
-
-
                           }
 
                           return ListTile(
-                            // User profile picture
-                            leading: InkWell(
-                              onTap: () {},
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(25.0), // Adjust the corner radius as needed
-                                child: CachedNetworkImage(
-                                  width: 55.0, // Adjust width as needed
-                                  height: 55.0, // Adjust height as needed
-                                  imageUrl: doc['GroupImage'].toString(),
-                                  errorWidget: (context, url, error) => CircleAvatar(
-                                    child: Icon(CupertinoIcons.person),
+                              // User profile picture
+                              leading: InkWell(
+                                onTap: () {},
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(
+                                      25.0), // Adjust the corner radius as needed
+                                  child: CachedNetworkImage(
+                                    width: 55.0, // Adjust width as needed
+                                    height: 55.0, // Adjust height as needed
+                                    imageUrl: doc['GroupImage'].toString(),
+                                    errorWidget: (context, url, error) =>
+                                        CircleAvatar(
+                                      child: Icon(CupertinoIcons.person),
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                            subtitle: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                if(recentChat.isNotEmpty )
-                                Text(recentChatMessage, maxLines: 1),
-                                if(recentLastChatId != auth.currentUser!.uid && recentChat.isNotEmpty)
-                                Container(
-                                  width: 20,
-                                  height: 20,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Colors.green,
-                                  ),
-                                  child: Center(
-                                    child: Text(recentChatLength.toString(), style: TextStyle(color: Colors.white)),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            title: Text(doc['GroupTitle'].toString()),
+                              subtitle: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  if (recentChat.isNotEmpty)
+                                    Text(recentChatMessage, maxLines: 1),
+                                  if (recentLastChatId !=
+                                          auth.currentUser!.uid &&
+                                      recentChat.isNotEmpty)
+                                    Container(
+                                      width: 20,
+                                      height: 20,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Colors.green,
+                                      ),
+                                      child: Center(
+                                        child: Text(recentChatLength.toString(),
+                                            style:
+                                                TextStyle(color: Colors.white)),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              title: Text(doc['GroupTitle'].toString()),
+                              trailing: isAdmin
+                                  ? ElevatedButton(
+                                      onPressed: () async {
+                                        if (recentLastChatId !=
+                                            auth.currentUser!.uid) {
+                                          setRecentList(doc.id);
+                                        }
 
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    TeacherGroup(
+                                                        teacherId: snapshot
+                                                            .data!
+                                                            .docs[i]
+                                                            .id)));
+                                      },
+                                      child: Text("Chat Now"),
+                                    )
+                                  : isMember
+                                      ? ElevatedButton(
+                                          onPressed: () async {
+                                            if (recentLastChatId !=
+                                                auth.currentUser!.uid) {
+                                              setRecentList(doc.id);
+                                            }
 
-                            trailing: isMember
-                                ? ElevatedButton(
-                              onPressed: () async {
-                                if(recentLastChatId != auth.currentUser!.uid){
-                                  setRecentList(doc.id);
-                                }
+                                            Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        TeacherGroup(
+                                                            teacherId: snapshot
+                                                                .data!
+                                                                .docs[i]
+                                                                .id)));
+                                          },
+                                          child: Text("Chat Now"),
+                                        )
+                                      : ElevatedButton(
+                                          onPressed: () async {
+                                            if (auth
+                                                .currentUser!.uid.isNotEmpty) {
+                                              await FirebaseFirestore.instance
+                                                  .collection("TeacherData")
+                                                  .snapshots()
+                                                  .forEach((element) {
+                                                print(
+                                                    'this is elemet ${element.docs[i]['TeacherId']} ${doc['GroupId']}');
+                                                if (element.docs[i]['TeacherId']
+                                                        .toString() ==
+                                                    doc['GroupId']) {
+                                                  Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                          builder: (_) =>
+                                                              AdvertisingScreen(
+                                                                snap: element
+                                                                    .docs[i],
+                                                              )));
+                                                }
+                                              });
 
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => TeacherGroup(teacherId: snapshot.data!.docs[i].id)));
-                              },
-                              child: Text("Chat Now"),
-                            )
-                                : ElevatedButton(
-                              onPressed: ()  async {
-                                if(auth.currentUser!.uid.isNotEmpty){
-        await FirebaseFirestore.instance.collection("TeacherData").snapshots().forEach((element) {
-    print('this is elemet ${element.docs[i]['TeacherId']} ${doc['GroupId']}');
-    if(
-    element.docs[i]['TeacherId'].toString() == doc['GroupId'] ){
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (_) =>
-                  AdvertisingScreen(snap: element.docs[i],)));
-    }
-        });
-
-                                  // Navigator.push(
-                                  //     context,
-                                  //     MaterialPageRoute(
-                                  //         builder: (_) =>
-                                  //             AdvertisingScreen(snap: snapshot.data!.docs[i],)));
-                                  // Navigator.push(context, MaterialPageRoute(builder: (context) => TeacherGroup(teacherId: snapshot.data!.docs[i].id)));
-                                  // addMember(snapshot.data!.docs[i].id);
-                                } else {
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen1(title: 'Login')));
-                                }
-                                setState(() {});
-                                // Handle join action (e.g., adding the current user to the group)
-                                // Add your join group code here
-                              },
-                              child: Text("Join Now"),
-                            ),
-                          );
+                                              // Navigator.push(
+                                              //     context,
+                                              //     MaterialPageRoute(
+                                              //         builder: (_) =>
+                                              //             AdvertisingScreen(snap: snapshot.data!.docs[i],)));
+                                              // Navigator.push(context, MaterialPageRoute(builder: (context) => TeacherGroup(teacherId: snapshot.data!.docs[i].id)));
+                                              // addMember(snapshot.data!.docs[i].id);
+                                            } else {
+                                              Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          LoginScreen1(
+                                                              title: 'Login')));
+                                            }
+                                            setState(() {});
+                                            // Handle join action (e.g., adding the current user to the group)
+                                            // Add your join group code here
+                                          },
+                                          child: Text("Join Now"),
+                                        ));
                         },
                       );
-
-
                     } else if (snapshot.hasError) {
-                      return Center(child: Text(snapshot.error.toString()),); // Handle errors
+                      return Center(
+                        child: Text(snapshot.error.toString()),
+                      ); // Handle errors
                     } else {
-                      return Center(child: CircularProgressIndicator(),); // Display your UI with the data
+                      return Center(
+                        child: CircularProgressIndicator(),
+                      ); // Display your UI with the data
                     }
                   },
                 ),
               ),
               //for group view,
-
-
             ],
           ),
         ),
       ),
     );
   }
-  setRecentList(teacherId) async{
-    await FirebaseFirestore.instance.collection("Teacher").doc(teacherId).update({
-      "RecentChat": []});
+
+  setRecentList(teacherId) async {
+    await FirebaseFirestore.instance
+        .collection("Teacher")
+        .doc(teacherId)
+        .update({"RecentChat": []});
   }
+
   Future<void> addMember(teacherId) async {
     final time = DateTime.now().microsecondsSinceEpoch.toString();
 
@@ -407,7 +464,6 @@ FirebaseAuth auth = FirebaseAuth.instance;
         .collection('users')
         .doc(auth.currentUser!.uid) // Replace with your document ID
         .get();
-
 
     List<ChatRoomMember> members = [
       ChatRoomMember(
@@ -428,27 +484,28 @@ FirebaseAuth auth = FirebaseAuth.instance;
       toId: auth.currentUser!.uid,
     );
     List<Map<String, dynamic>> membersMap =
-    members.map((member) => member.toMap()).toList();
+        members.map((member) => member.toMap()).toList();
     try {
-      await FirebaseFirestore.instance.collection("Teacher").doc(teacherId).set({
-        'membersID': FieldValue.arrayUnion(members.map((member) => member.userId).toList()),
+      await FirebaseFirestore.instance
+          .collection("Teacher")
+          .doc(teacherId)
+          .set({
+        'membersID': FieldValue.arrayUnion(
+            members.map((member) => member.userId).toList()),
         // List of user IDs
         'members': FieldValue.arrayUnion(membersMap),
         // List of members as maps
-      },SetOptions(merge: true));
+      }, SetOptions(merge: true));
 
       await FirebaseFirestore.instance
           .collection("Teacher")
           .doc(teacherId)
           .collection("Chat")
-          .doc(time).set(message.toJson());
+          .doc(time)
+          .set(message.toJson());
       print('Document added to the new collection');
     } catch (e) {
       print('Error adding document: $e');
     }
-
-
-
   }
-
 }

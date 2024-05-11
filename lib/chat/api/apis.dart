@@ -164,6 +164,48 @@ class APIs {
     });
   }
 
+  static Future<void> sendCommunityMessage(
+      {required String msg,
+        required Type type,
+        required token}) async {
+    DateTime dateTime = DateTime.now();
+    Timestamp specificTimeStamp = Timestamp.fromDate(dateTime);
+
+    final time = DateTime.now().microsecondsSinceEpoch.toString();
+    List<RecentChat> recentChats = [
+      RecentChat(
+          id: auth.currentUser!.uid, // In Add group id is teacher Id
+          message: msg),
+    ];
+    List<Map<String, dynamic>> recentChatData =
+    recentChats.map((recentChat) => recentChat.toMap()).toList();
+    // message to send
+    final GroupMessages message = GroupMessages(
+      name: '',
+      msg: msg,
+      read: '',
+      type: type,
+      sent: time,
+      fromid: auth.currentUser!.uid,
+      toId: auth.currentUser!.uid,
+    );
+    await FirebaseFirestore.instance.collection("Community").doc('chats').set({
+      'RecentChat': FieldValue.arrayUnion(recentChatData),
+    }, SetOptions(merge: true));
+    final ref = FirebaseFirestore.instance
+        .collection('Community')
+        .doc('chats')
+        .collection('Chat');
+    await ref.doc(time).set(message.toJson());
+
+    await FirebaseFirestore.instance
+        .collection("Community")
+        .doc('chats')
+        .update({
+      "Timestamp": specificTimeStamp,
+    });
+  }
+
   static Future<void> sendGroupPushNotification(
       String poshToken, String msg) async {
     print('notification sent ');
@@ -441,6 +483,20 @@ class APIs {
 
     await sendGroupMessage(
         token: token, msg: ImageUrl, type: Type.image, teacherId: teacherId);
+  }
+
+  static Future<void> sendCommunityChatImage(
+      { required File file, required token}) async {
+    print("helooooooooooooooooooooooooo");
+    Reference db = FirebaseStorage.instance
+        .ref("images/community/${DateTime.now().microsecondsSinceEpoch}");
+    await db.putFile(File(file.path));
+
+    final ImageUrl = await db.getDownloadURL();
+    print("----------------------------------------------------${ImageUrl}");
+
+    await sendCommunityMessage(
+        token: token, msg: ImageUrl, type: Type.image,);
   }
 
   //delete messag

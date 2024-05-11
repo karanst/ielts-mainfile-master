@@ -1,9 +1,13 @@
 // import 'package:admob_flutter/admob_flutter.dart';
 // import 'package:admob_flutter/admob_flutter.dart';
+import 'dart:developer';
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:ielts/models/listening.dart';
 import 'package:ielts/screens/home_screen.dart';
 import 'package:ielts/screens/premium_screen.dart';
@@ -38,6 +42,89 @@ class _ListeningDetailScreenState extends State<ListeningDetailScreen>
   String s1SubQuestions2Result = '';
   String s1SubQuestions3Result = '';
   String answersResult = '';
+  late BannerAd bannerAds;
+  bool isAdLoaded = false;
+  NativeAd? nativeAd;
+  bool _nativeAdIsLoaded = false;
+
+  // TODO: replace this test ad unit with your own ad unit.
+  final String _adUnitId = Platform.isAndroid
+      ? 'ca-app-pub-2565086294001704/2881838616'
+      : 'ca-app-pub-2565086294001704/2881838616';
+  // final String _adUnitId = Platform.isAndroid
+  //     ? 'ca-app-pub-3940256099942544/2247696110'
+  //     : 'ca-app-pub-3940256099942544/3986624511';
+
+  /// Loads a native ad.
+  void loadAd() {
+    nativeAd = NativeAd(
+        adUnitId: _adUnitId,
+        listener: NativeAdListener(
+          onAdLoaded: (ad) {
+            debugPrint('$NativeAd loaded.');
+            setState(() {
+              _nativeAdIsLoaded = true;
+            });
+          },
+          onAdFailedToLoad: (ad, error) {
+            // Dispose the ad here to free resources.
+            debugPrint('$NativeAd failed to load: $error');
+            ad.dispose();
+          },
+        ),
+        request: const AdRequest(),
+        // Styling
+        nativeTemplateStyle: NativeTemplateStyle(
+            templateType: TemplateType.medium,
+            mainBackgroundColor: Colors.teal,
+            cornerRadius: 10.0,
+            callToActionTextStyle: NativeTemplateTextStyle(
+                textColor: Colors.cyan,
+                backgroundColor: Colors.red,
+                style: NativeTemplateFontStyle.monospace,
+                size: 16.0),
+            primaryTextStyle: NativeTemplateTextStyle(
+                textColor: Colors.red,
+                backgroundColor: Colors.cyan,
+                style: NativeTemplateFontStyle.italic,
+                size: 16.0),
+            secondaryTextStyle: NativeTemplateTextStyle(
+                textColor: Colors.green,
+                backgroundColor: Colors.black,
+                style: NativeTemplateFontStyle.bold,
+                size: 16.0),
+            tertiaryTextStyle: NativeTemplateTextStyle(
+                textColor: Colors.brown,
+                backgroundColor: Colors.amber,
+                style: NativeTemplateFontStyle.normal,
+                size: 16.0)))
+      ..load();
+  }
+
+  var adUnit = 'ca-app-pub-2565086294001704/8844512703';
+
+  initBannerAd() {
+    bannerAds = BannerAd(
+      size: AdSize.banner,
+      adUnitId: adUnit,
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          setState(() {
+            log('The ad has been loaded.');
+            isAdLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          log('Failed to load an ad: ${error.code}:${error.message}');
+          ad.dispose();
+        },
+      ),
+      request: AdRequest(),
+    );
+
+    // Load the banner ad
+    bannerAds.load();
+  }
 
   final ams = AdMobService();
   MyAds ads = MyAds();
@@ -53,6 +140,8 @@ class _ListeningDetailScreenState extends State<ListeningDetailScreen>
 
   @override
   void initState() {
+    initBannerAd();
+    loadAd();
     _player = AudioPlayer();
     _player.setUrl(widget.listening.firstSectionAudio).catchError((error) {
       // catch audio error ex: 404 url, wrong url ...
@@ -94,6 +183,7 @@ class _ListeningDetailScreenState extends State<ListeningDetailScreen>
     _player2.dispose();
     _player3.dispose();
     _player4.dispose();
+    nativeAd?.dispose();
     super.dispose();
   }
 
@@ -113,13 +203,13 @@ class _ListeningDetailScreenState extends State<ListeningDetailScreen>
     return DefaultTabController(
       length: 4,
       child: Scaffold(
-        bottomNavigationBar: BottomAppBar(
-          child: Container(
-            height: 100, // Adjust the height according to your banner ad's size
-            alignment: Alignment.center,
-            child: ads.buildBannerAd(), // Display the banner ad
-          ),
-        ),
+        bottomNavigationBar: isAdLoaded
+            ? SizedBox(
+                height: bannerAds.size.height.toDouble(),
+                width: bannerAds.size.width.toDouble(),
+                child: AdWidget(ad: bannerAds),
+              )
+            : SizedBox(),
         backgroundColor: Theme.of(context).primaryColor,
         appBar: AppBar(
           leading: IconButton(
@@ -452,7 +542,27 @@ class _ListeningDetailScreenState extends State<ListeningDetailScreen>
                             //       adUnitId: ams.getBannerAdId(),
                             //       adSize: AdmobBannerSize.FULL_BANNER),
                             // ),
-                            ads.buildNativeAd(),
+
+// ads.buildNativeAd(),
+
+                            Container(
+                              child: _nativeAdIsLoaded
+                                  ? SizedBox(
+                                      child: Container(
+                                        child: AdWidget(
+                                          ad: nativeAd!,
+                                        ),
+                                        alignment: Alignment.center,
+                                        height: 170,
+                                        color: Colors.black12,
+                                      ),
+                                    )
+                                  : SizedBox(),
+                            ),
+
+                            SizedBox(
+                              height: 10,
+                            ),
                             Visibility(
                               visible:
                                   (widget.listening.firstQuestionImage != '')

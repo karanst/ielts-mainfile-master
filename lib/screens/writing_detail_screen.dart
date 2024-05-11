@@ -1,5 +1,6 @@
 // import 'package:admob_flutter/admob_flutter.dart';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
@@ -8,6 +9,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:ielts/models/lesson.dart';
 import 'package:ielts/screens/home_screen.dart';
 import 'package:ielts/screens/premium_screen.dart';
+import 'package:ielts/screens/writing_test_page.dart';
 import 'package:ielts/services/admob_service.dart';
 import 'package:ielts/widgets/adsHelper.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -36,10 +38,68 @@ class _WritingDetailScreenState extends State<WritingDetailScreen>
   double? screenWidth, screenHeight;
   final Duration duration = const Duration(milliseconds: 300);
   // final ams = AdMobService();
-  MyAds ads = MyAds();
+
   late BannerAd bannerAds;
   bool isAdLoaded = false;
-  var adUnit = 'ca-app-pub-2565086294001704/8844512703';
+  NativeAd? nativeAd;
+  bool _nativeAdIsLoaded = false;
+
+  // TODO: replace this test ad unit with your own ad unit.
+  final String _adUnitId = Platform.isAndroid
+      ? 'ca-app-pub-2565086294001704/2881838616'
+      : 'ca-app-pub-2565086294001704/2881838616';
+  // final String _adUnitId = Platform.isAndroid
+  //     ? 'ca-app-pub-3940256099942544/2247696110'
+  //     : 'ca-app-pub-3940256099942544/3986624511';
+
+  /// Loads a native ad.
+  void loadAd() {
+    nativeAd = NativeAd(
+        adUnitId: _adUnitId,
+        listener: NativeAdListener(
+          onAdLoaded: (ad) {
+            debugPrint('$NativeAd loaded.');
+            setState(() {
+              _nativeAdIsLoaded = true;
+            });
+          },
+          onAdFailedToLoad: (ad, error) {
+            // Dispose the ad here to free resources.
+            debugPrint('$NativeAd failed to load: $error');
+            ad.dispose();
+          },
+        ),
+        request: const AdRequest(),
+        // Styling
+        nativeTemplateStyle: NativeTemplateStyle(
+            templateType: TemplateType.medium,
+            mainBackgroundColor: Colors.teal,
+            cornerRadius: 10.0,
+            callToActionTextStyle: NativeTemplateTextStyle(
+                textColor: Colors.cyan,
+                backgroundColor: Colors.red,
+                style: NativeTemplateFontStyle.monospace,
+                size: 16.0),
+            primaryTextStyle: NativeTemplateTextStyle(
+                textColor: Colors.red,
+                backgroundColor: Colors.cyan,
+                style: NativeTemplateFontStyle.italic,
+                size: 16.0),
+            secondaryTextStyle: NativeTemplateTextStyle(
+                textColor: Colors.green,
+                backgroundColor: Colors.black,
+                style: NativeTemplateFontStyle.bold,
+                size: 16.0),
+            tertiaryTextStyle: NativeTemplateTextStyle(
+                textColor: Colors.brown,
+                backgroundColor: Colors.amber,
+                style: NativeTemplateFontStyle.normal,
+                size: 16.0)))
+      ..load();
+  }
+
+  // var adUnits = 'ca-app-pub-2565086294001704/2881838616'; // Native ad unit ID
+  var adUnit = 'ca-app-pub-2565086294001704/8844512703'; // Banner ad unit ID
 
   initBannerAd() {
     bannerAds = BannerAd(
@@ -69,10 +129,12 @@ class _WritingDetailScreenState extends State<WritingDetailScreen>
     super.initState();
     // Admob.initialize();
     initBannerAd();
+    loadAd();
   }
 
   @override
   void dispose() {
+    nativeAd?.dispose();
     super.dispose();
   }
 
@@ -96,7 +158,7 @@ class _WritingDetailScreenState extends State<WritingDetailScreen>
               child: AdWidget(ad: bannerAds),
             )
           : SizedBox(),
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor    ,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         elevation: 0.0,
         leading: IconButton(
@@ -186,7 +248,21 @@ class _WritingDetailScreenState extends State<WritingDetailScreen>
                               ),
                             ),
                           ),
-                          ads.buildNativeAd(),
+                          // ads.buildNativeAd(),
+                          Container(
+                            child: _nativeAdIsLoaded
+                                ? SizedBox(
+                                    child: Container(
+                                      child: AdWidget(
+                                        ad: nativeAd!,
+                                      ),
+                                      alignment: Alignment.center,
+                                      height: 170,
+                                      color: Colors.black12,
+                                    ),
+                                  )
+                                : SizedBox(),
+                          ),
 
                           Padding(
                             padding: const EdgeInsets.all(12.0),
@@ -219,6 +295,28 @@ class _WritingDetailScreenState extends State<WritingDetailScreen>
                             ),
                           ),
 
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.of(context).pop(); // Close the dialog
+                              // Redirect to Premium Screen
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => WritingPage(),
+                                ),
+                              );
+                            },
+                            child: Text(
+                              "Write your answer",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                Colors.green,
+                              ),
+                            ),
+                          ),
+
                           // Visibility(
                           //   visible: premium_user != true,
                           //   child: AdmobBanner(
@@ -226,12 +324,13 @@ class _WritingDetailScreenState extends State<WritingDetailScreen>
                           //       adSize: AdmobBannerSize.LARGE_BANNER),
                           // ),
                           Padding(
-                            padding: EdgeInsets.only(bottom: 10.0),
+                            padding: EdgeInsets.only(bottom: 20.0),
                             child: Align(
                               alignment: Alignment.bottomCenter,
                               child: MaterialButton(
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10)),
+
                                 onPressed: () {
                                   // Check if the user is premium
                                   if (!premium_user_google_play) {

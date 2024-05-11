@@ -12,6 +12,7 @@ import 'package:ielts/exam_panel.dart/configs/theme/app_light_theme.dart';
 import 'package:ielts/exam_panel.dart/controllers/question_page/question_paper_controller.dart';
 import 'package:ielts/exam_panel.dart/controllers/theme_controller.dart';
 import 'package:ielts/exam_panel.dart/firebase_ref/firebase_storage_service.dart';
+import 'package:ielts/services/purchaseApi.dart';
 
 import 'package:ielts/utils/app_constants.dart';
 import 'package:ielts/locator.dart';
@@ -36,7 +37,7 @@ import 'package:in_app_update/in_app_update.dart';
 
 import 'chat/screens/chat_main_screen.dart';
 
- late Size mq ;
+late Size mq;
 Future initFirebase() async {
   await Firebase.initializeApp();
 }
@@ -51,9 +52,9 @@ Future<void> _initIAP() async {
 
 main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await Firebase.initializeApp();
   Get.lazyPut(() => FirebaseStorageService());
-
 
   await initFirebase();
   _initIAP();
@@ -70,6 +71,7 @@ main() async {
     } else {
       prefs.setBool('darkMode', darkModeOn);
     }
+
     runApp(
       ChangeNotifierProvider<ThemeNotifier>(
         create: (_) => ThemeNotifier(darkModeOn ? darkTheme : lightTheme),
@@ -139,14 +141,6 @@ class _MyAppState extends State<MyApp> {
     print('Update started');
   }
 
-  // Future<void> _handleMessage(RemoteMessage message) {
-  //   if (message.messageId !=null) {
-  //     Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeScreens()));
-  //
-  //   }
-  //   return Future<void>.value();
-  // }
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     final themeNotifier = Provider.of<ThemeNotifier>(context);

@@ -1,4 +1,6 @@
 // import 'package:admob_flutter/admob_flutter.dart';
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flut_grouped_buttons/flut_grouped_buttons.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +20,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/adsHelper.dart';
 
 final Color backgroundColor = Color(0xFF21BFBD);
+bool premium_user_google_play = false;
 
 class WritingScreen extends StatefulWidget {
   // WritingScreen({Key key}) : super(key: key);
@@ -33,6 +36,32 @@ class _WritingScreenState extends State<WritingScreen>
   bool isCollapsed = true;
   double? screenWidth, screenHeight;
   final ams = AdMobService();
+  late BannerAd bannerAds;
+  bool isAdLoaded = false;
+  var adUnit = 'ca-app-pub-2565086294001704/8844512703';
+
+  initBannerAd() {
+    bannerAds = BannerAd(
+      size: AdSize.banner,
+      adUnitId: adUnit,
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          setState(() {
+            log('The ad has been loaded.');
+            isAdLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          log('Failed to load an ad: ${error.code}:${error.message}');
+          ad.dispose();
+        },
+      ),
+      request: AdRequest(),
+    );
+
+    // Load the banner ad
+    bannerAds.load();
+  }
 
   List<String> checkedWritingItems = [];
   final Duration duration = const Duration(milliseconds: 300);
@@ -52,6 +81,7 @@ class _WritingScreenState extends State<WritingScreen>
     super.initState();
     // Admob.initialize();
     ams.getAdMobAppId();
+    initBannerAd();
     // lessons = getWritingData();
   }
 
@@ -75,14 +105,13 @@ class _WritingScreenState extends State<WritingScreen>
     screenWidth = size.width;
     _adController.ad = AdHelper.loadNativeAd(adController: _adController);
     return Scaffold(
-      bottomNavigationBar:
-          _adController.ad != null && _adController.adLoaded.isTrue
-              ? SizedBox(
-                  height: 120,
-                  child: AdWidget(
-                      ad: _adController.ad!), // Create and load a new ad object
-                )
-              : null,
+      bottomNavigationBar: isAdLoaded
+          ? SizedBox(
+              height: bannerAds.size.height.toDouble(),
+              width: bannerAds.size.width.toDouble(),
+              child: AdWidget(ad: bannerAds),
+            )
+          : SizedBox(),
 
       // bottomNavigationBar:
       //     _adController.ad != null && _adController.adLoaded.isTrue

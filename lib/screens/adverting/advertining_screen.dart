@@ -1,4 +1,3 @@
-
 import 'dart:async';
 import 'dart:io';
 
@@ -28,12 +27,13 @@ class AdvertisingScreen extends StatefulWidget {
 }
 
 class _AdvertisingScreenState extends State<AdvertisingScreen> {
-   YoutubePlayerController? _controller;
+  late YoutubePlayerController _controller;
   String title = "";
   String discription1 = "";
   String discription2 = "";
   String enrollNow = "https://wa.me/+919612052091";
   String name = "";
+  String liveClass = "";
   String price = "";
   String duration = "";
   String flag = "";
@@ -41,95 +41,104 @@ class _AdvertisingScreenState extends State<AdvertisingScreen> {
   bool showFullDescription1 = false;
   bool showFullDescription2 = false;
   String user = "";
+  String message = "";
   bool checkChat = false;
+  void _launchWhatsApp() async {
+    // Replace "YOUR_PHONE_NUMBER" with your actual phone number
+    String phoneNumber = "+919612052091";
+    // Replace "YOUR_MESSAGE" with your desired default message
 
-   List<IAPItem> _items = [];
+    // WhatsApp link format: whatsapp://send?phone=+123456789&text=Hello
+    String url = "https://wa.me/$phoneNumber?text=$message";
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
 
-   // Instantiates inAppPurchase
-   final InAppPurchase _iap = InAppPurchase.instance;
+  List<IAPItem> _items = [];
 
-   // checks if the API is available on this device
-   bool _isAvailable = false;
+  // Instantiates inAppPurchase
+  final InAppPurchase _iap = InAppPurchase.instance;
 
-   // keeps a list of products queried from Playstore or app store
-   List<ProductDetails> _products = [];
+  // checks if the API is available on this device
+  bool _isAvailable = false;
 
-   // List of users past purchases
-   // List<IAPItem> _items = [];
-   List<PurchasedItem> _purchases = [];
-   // List<PurchaseDetails> _purchases = [];
+  // keeps a list of products queried from Playstore or app store
+  List<ProductDetails> _products = [];
 
-   // subscription that listens to a stream of updates to purchase details
-   late StreamSubscription _subscription;
+  // List of users past purchases
+  // List<IAPItem> _items = [];
+  List<PurchasedItem> _purchases = [];
+  // List<PurchaseDetails> _purchases = [];
 
+  // subscription that listens to a stream of updates to purchase details
+  late StreamSubscription _subscription;
 
-   // Method to retrieve product list
-   Future<void> _getUserProducts(String prodId) async {
-     Set<String> ids = {prodId};
-     ProductDetailsResponse response = await _iap.queryProductDetails(ids);
+  // Method to retrieve product list
+  Future<void> _getUserProducts(String prodId) async {
+    Set<String> ids = {prodId};
+    ProductDetailsResponse response = await _iap.queryProductDetails(ids);
 
-     setState(() {
-       _products = response.productDetails;
-     });
-   }
+    setState(() {
+      _products = response.productDetails;
+    });
+  }
 
-   // Method to retrieve users past purchase
-   Future _getPurchaseHistory() async {
-     List<PurchasedItem>? items =
-     await FlutterInappPurchase.instance.getPurchaseHistory();
-     print('purchased items: ${items}');
-     for (PurchasedItem item in items!) {
-       print('purchased items: ${item.toString()}');
-       this._purchases.add(item);
-     }
+  // Method to retrieve users past purchase
+  Future _getPurchaseHistory() async {
+    List<PurchasedItem>? items =
+        await FlutterInappPurchase.instance.getPurchaseHistory();
+    print('purchased items: ${items}');
+    for (PurchasedItem item in items!) {
+      print('purchased items: ${item.toString()}');
+      this._purchases.add(item);
+    }
 
-     setState(() {
-       this._items = [];
-       this._purchases = items;
-     });
-   }
+    setState(() {
+      this._items = [];
+      this._purchases = items;
+    });
+  }
 
-   // checks if a user has purchased a certain product
-   // PurchaseDetails _hasUserPurchased(String productID){
-   //   return _purchases.firstWhere((purchase) => purchase.productID == productID);
-   // }
+  // checks if a user has purchased a certain product
+  // PurchaseDetails _hasUserPurchased(String productID){
+  //   return _purchases.firstWhere((purchase) => purchase.productID == productID);
+  // }
 
+  // Method to check if the product has been purchased already or not.
+  // void _verifyPurchases(){
+  //   PurchaseDetails purchase = _hasUserPurchased('testID');
+  //   if(purchase.status == PurchaseStatus.purchased){
+  //     _coins = 10;
+  //   }
+  // }
 
-   // Method to check if the product has been purchased already or not.
-   // void _verifyPurchases(){
-   //   PurchaseDetails purchase = _hasUserPurchased('testID');
-   //   if(purchase.status == PurchaseStatus.purchased){
-   //     _coins = 10;
-   //   }
-   // }
+  // Method to purchase a product
+  void _buyProduct(ProductDetails prod) {
+    final PurchaseParam purchaseParam = PurchaseParam(productDetails: prod);
+    _iap.buyConsumable(purchaseParam: purchaseParam, autoConsume: false);
+  }
 
-   // Method to purchase a product
-   void _buyProduct(ProductDetails prod){
-     final PurchaseParam purchaseParam = PurchaseParam(productDetails: prod);
-     _iap.buyConsumable(purchaseParam: purchaseParam, autoConsume: false);
-   }
+  @override
+  void initState() {
+    // _initialize();
+    _getPurchaseHistory();
+    fetchVideoIdFromFirestore();
+    addGroup(widget
+        .snap!.id); // using for create new group if group is not available
+    checkCurrentUserForGroupMember();
+    super.initState();
+  }
 
+  @override
+  void dispose() {
+    // cancelling the subscription
+    _subscription.cancel();
 
-
-   @override
-   void initState() {
-     // _initialize();
-     _getPurchaseHistory();
-     fetchVideoIdFromFirestore();
-     addGroup(widget.snap!.id);   // using for create new group if group is not available
-     checkCurrentUserForGroupMember();
-     super.initState();
-   }
-
-   @override
-   void dispose() {
-
-     // cancelling the subscription
-     _subscription.cancel();
-
-     super.dispose();
-   }
-
+    super.dispose();
+  }
 
   void fetchVideoIdFromFirestore() async {
     print("-----------------------------------------------${widget.snap!.id}");
@@ -143,8 +152,10 @@ class _AdvertisingScreenState extends State<AdvertisingScreen> {
     discription1 = widget.snap!['description_1'];
     discription2 = widget.snap!['description_2'];
     name = widget.snap!['name'];
+    liveClass = widget.snap!['liveClass'];
     print('rrrrrrrrrrrrrrrrr');
     print(name);
+    message = widget.snap!['message'];
     price = widget.snap!['price'];
     duration = widget.snap!['duration'];
     flag = widget.snap!['flag'];
@@ -160,9 +171,6 @@ class _AdvertisingScreenState extends State<AdvertisingScreen> {
 
     setState(() {});
     _getUserProducts(productId.toString());
-    // } catch (e) {
-    //   print('Error fetching video ID from Firestore: $e');
-    // }
   }
 
   @override
@@ -231,11 +239,9 @@ class _AdvertisingScreenState extends State<AdvertisingScreen> {
                   child: AspectRatio(
                     aspectRatio: 16 / 9,
                     child: YoutubePlayer(
-                      controller: _controller =
-                          YoutubePlayerController(
-                            initialVideoId: YoutubePlayer.convertUrlToId(widget.snap!['video_id']).toString(),
-                            // showVideoProgressIndicator: true,
-                    ),)
+                      controller: _controller,
+                      showVideoProgressIndicator: true,
+                    ),
                   ),
                 ),
               ),
@@ -360,7 +366,7 @@ class _AdvertisingScreenState extends State<AdvertisingScreen> {
                           color: Colors.teal), // Icon before text
                       SizedBox(width: 8),
                       Text(
-                        "2 Live Classes Per Week",
+                        liveClass,
                         style: TextStyle(
                           color: Colors.black,
                           fontSize: 14,
@@ -566,63 +572,92 @@ class _AdvertisingScreenState extends State<AdvertisingScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-
-                      checkChat ?  GestureDetector(
-                        onTap: () async {
-                          checkCurrentUserForAddMember();
-                          // Navigator.push(context, MaterialPageRoute(builder: (context) =>TeacherGroup(teacherId: widget.snap!.id)));
-
-                        },
-                        child: ElevatedButton(
-                          onPressed: null,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 12,
-                              horizontal: 20,
-                            ),
-                            child: Text(
-                              "Chat Now",
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white.withOpacity(0.5),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                        ),
-                      ) : GestureDetector(
-                          onTap: () async {
-                            checkCurrentUserForAddMember();
-                          },
-                          child: ElevatedButton(
-                            onPressed: null,
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 12,
-                                horizontal: 20,
-                              ),
-                              child: Text(
-                                "Enroll Now",
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold,
+                        checkChat
+                            ? GestureDetector(
+                                onTap: () async {
+                                  checkCurrentUserForAddMember();
+                                  // Navigator.push(context, MaterialPageRoute(builder: (context) =>TeacherGroup(teacherId: widget.snap!.id)));
+                                },
+                                child: ElevatedButton(
+                                  onPressed: null,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 12,
+                                      horizontal: 20,
+                                    ),
+                                    child: Text(
+                                      "Chat Now",
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        Colors.white.withOpacity(0.5),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : GestureDetector(
+                                onTap: () async {
+                                  checkCurrentUserForAddMember();
+                                },
+                                child: ElevatedButton(
+                                  onPressed: null,
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 12,
+                                      horizontal: 20,
+                                    ),
+                                    child: Text(
+                                      "Enroll Now",
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor:
+                                        Colors.white.withOpacity(0.5),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white.withOpacity(0.5),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                          ),
-                        ) ,
                       ],
+                    ),
+                  ),
+                  //chat
+                  Container(
+                    child: ElevatedButton.icon(
+                      onPressed:
+                          _launchWhatsApp, // Call _launchWhatsApp when button is pressed
+                      icon: Icon(Icons.message), // WhatsApp icon
+                      label: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 12,
+                          horizontal: 20,
+                        ),
+                        child: Text(
+                          "Chat Now",
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white.withOpacity(0.5),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -634,7 +669,6 @@ class _AdvertisingScreenState extends State<AdvertisingScreen> {
     );
   }
 
-
   void checkCurrentUserForGroupMember() {
     print('1');
     FirebaseAuth auth = FirebaseAuth.instance;
@@ -645,29 +679,33 @@ class _AdvertisingScreenState extends State<AdvertisingScreen> {
     }
   }
 
-   final List<String> _productLists = Platform.isAndroid
-       ? [
-     'vault_premium',
-     'android.test.purchased',
-     'android.test.canceled',
-   ]
-       : [    'teacher1.ielts_20usd',
-     'teacher2.ielts_50usd',];
-
-
+  final List<String> _productLists = Platform.isAndroid
+      ? [
+          'vault_premium',
+          'android.test.purchased',
+          'android.test.canceled',
+        ]
+      : [
+          'teacher1.ielts_20usd',
+          'teacher2.ielts_50usd',
+          'teacher3.ielts_35usd',
+        ];
 
   void checkCurrentUserForAddMember() {
     FirebaseAuth auth = FirebaseAuth.instance;
     User? currentUser = auth.currentUser;
 
     if (currentUser != null) {
-      if(checkChat) {
-      Navigator.push(context, MaterialPageRoute(builder: (context) =>TeacherGroup(teacherId: widget.snap!.id)));
-      }else{
-        if(_purchases.isEmpty){
+      if (checkChat) {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    TeacherGroup(teacherId: widget.snap!.id)));
+      } else {
+        if (_purchases.isEmpty) {
           _buyProduct(_products[0]);
-        }
-        else {
+        } else {
           addMember(widget.snap!.id);
         }
       }
@@ -680,19 +718,19 @@ class _AdvertisingScreenState extends State<AdvertisingScreen> {
       //     ),
       //   );
       // }
-
-    } else{
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>LoginScreen1(title: '')));
+    } else {
+      Navigator.pushReplacement(context,
+          MaterialPageRoute(builder: (context) => LoginScreen1(title: '')));
     }
   }
 
-  Future<bool> checkGroupMember() async{
+  Future<bool> checkGroupMember() async {
     FirebaseAuth auth = FirebaseAuth.instance;
     DocumentSnapshot snapshot = await FirebaseFirestore.instance
         .collection("Teacher")
         .doc(widget.snap!.id)
         .get();
-    if(snapshot.exists){
+    if (snapshot.exists) {
       Map<String, dynamic>? data = snapshot.data() as Map<String, dynamic>?;
       List<String> membersID = List<String>.from(data!['membersID']);
 
@@ -701,13 +739,11 @@ class _AdvertisingScreenState extends State<AdvertisingScreen> {
           checkChat = true;
         });
         print('Member In');
-
-      }else{
+      } else {
         setState(() {
-          checkChat =false;
+          checkChat = false;
           print('member not in');
         });
-
       }
     }
     return false;
@@ -718,7 +754,6 @@ class _AdvertisingScreenState extends State<AdvertisingScreen> {
     Timestamp specificTimeStamp = Timestamp.fromDate(dateTime);
     final time = DateTime.now().microsecondsSinceEpoch.toString();
 
-
     FirebaseAuth auth = FirebaseAuth.instance;
     DocumentSnapshot document = await FirebaseFirestore.instance
         .collection('users')
@@ -727,166 +762,159 @@ class _AdvertisingScreenState extends State<AdvertisingScreen> {
     List<RecentChat> recentChats = [
       RecentChat(
           id: auth.currentUser!.uid, // In Add group id is teacher Id
-          message: 'Hi'
+          message: 'Hi'),
+    ];
 
+    List<ChatRoomMember> members = [
+      ChatRoomMember(
+        userId: document.id,
+        name: document["name"],
+        imageUrl: 'https://example.com/profile1.jpg',
+        isAdmin: false,
       ),
     ];
 
-
-      List<ChatRoomMember> members = [
-        ChatRoomMember(
-          userId: document.id,
-          name: document["name"],
-          imageUrl: 'https://example.com/profile1.jpg',
-          isAdmin: false,
-        ),
-      ];
-
-      final GroupMessages message = GroupMessages(
-        name: document['name'],
-        msg: "Hi",
-        read: '',
-        type: Type.text,
-        sent: time,
-        fromid: auth.currentUser!.uid,
-        toId: auth.currentUser!.uid,
-
-      );
+    final GroupMessages message = GroupMessages(
+      name: document['name'],
+      msg: "Hi",
+      read: '',
+      type: Type.text,
+      sent: time,
+      fromid: auth.currentUser!.uid,
+      toId: auth.currentUser!.uid,
+    );
     List<Map<String, dynamic>> recentChatData =
-    recentChats.map((recentChat) => recentChat.toMap()).toList();
-      List<Map<String, dynamic>> membersMap =
-          members.map((member) => member.toMap()).toList();
-      try {
-        await FirebaseFirestore.instance.collection("Teacher").doc(teacherId).set({
-          'RecentChat': FieldValue.arrayUnion(recentChatData),
+        recentChats.map((recentChat) => recentChat.toMap()).toList();
+    List<Map<String, dynamic>> membersMap =
+        members.map((member) => member.toMap()).toList();
+    try {
+      await FirebaseFirestore.instance
+          .collection("Teacher")
+          .doc(teacherId)
+          .set({
+        'RecentChat': FieldValue.arrayUnion(recentChatData),
 
-          'membersID': FieldValue.arrayUnion(members.map((member) => member.userId).toList()),
-          // List of user IDs
-          'members': FieldValue.arrayUnion(membersMap),
+        'membersID': FieldValue.arrayUnion(
+            members.map((member) => member.userId).toList()),
+        // List of user IDs
+        'members': FieldValue.arrayUnion(membersMap),
 
-          // List of members as maps
-        },SetOptions(merge: true));
+        // List of members as maps
+      }, SetOptions(merge: true));
 
-
-
-        await FirebaseFirestore.instance
-            .collection("Teacher")
-            .doc(teacherId)
-            .collection("Chat")
-            .doc(time).set(message.toJson()).then((value) => setState(() {
-              checkChat = true;
-            }));
-        await FirebaseFirestore.instance.collection("Teacher").doc(teacherId).update({
-          "Timestamp": specificTimeStamp,});
-        print('Document added to the new collection');
-      } catch (e) {
-        print('Error adding document: $e');
-      }
-
-
-
+      await FirebaseFirestore.instance
+          .collection("Teacher")
+          .doc(teacherId)
+          .collection("Chat")
+          .doc(time)
+          .set(message.toJson())
+          .then((value) => setState(() {
+                checkChat = true;
+              }));
+      await FirebaseFirestore.instance
+          .collection("Teacher")
+          .doc(teacherId)
+          .update({
+        "Timestamp": specificTimeStamp,
+      });
+      print('Document added to the new collection');
+    } catch (e) {
+      print('Error adding document: $e');
     }
+  }
 
-   Future<void> addGroup(teacherId) async {
+  Future<void> addGroup(teacherId) async {
+    DateTime dateTime = DateTime.now();
+    Timestamp specificTimeStamp = Timestamp.fromDate(dateTime);
 
+    List<RecentChat> recentChats = [
+      RecentChat(
+          id: teacherId, // In Add group id is teacher Id
+          message: 'Hi'),
+    ];
+    List<Map<String, dynamic>> recentChatData =
+        recentChats.map((recentChat) => recentChat.toMap()).toList();
+    List<ChatRoomMember> members = [
+      ChatRoomMember(
+        userId: teacherId,
+        name: name,
+        imageUrl: 'https://example.com/profile1.jpg',
+        isAdmin: true,
+      ),
+    ];
+    List<Map<String, dynamic>> membersMap =
+        members.map((member) => member.toMap()).toList();
 
-     DateTime dateTime = DateTime.now();
-     Timestamp specificTimeStamp = Timestamp.fromDate(dateTime);
+    // Reference to the Firestore instance
+    final firestore = FirebaseFirestore.instance;
 
-     List<RecentChat> recentChats = [
-       RecentChat(
-         id: teacherId, // In Add group id is teacher Id
-         message: 'Hi'
+    try {
+      QuerySnapshot snapshot = await FirebaseFirestore.instance
+          .collection('Teacher')
+          .where('GroupId', isEqualTo: teacherId)
+          .get();
 
-       ),
-     ];
-     List<Map<String, dynamic>> recentChatData =
-     recentChats.map((recentChat) => recentChat.toMap()).toList();
-     List<ChatRoomMember> members = [
-       ChatRoomMember(
-         userId: teacherId,
-         name: name,
-         imageUrl: 'https://example.com/profile1.jpg',
-         isAdmin: true,
-       ),
-     ];
-     List<Map<String, dynamic>> membersMap =
-     members.map((member) => member.toMap()).toList();
+      if (snapshot.docs.isNotEmpty) {
+        print("doc is already created");
+      } else {
+        final time = DateTime.now().microsecondsSinceEpoch.toString();
+        print(name);
+        final GroupMessages message = GroupMessages(
+          name: name,
+          msg: "Hi",
+          read: '',
+          type: Type.text,
+          sent: time,
+          fromid: widget.snap!.id,
+          toId: widget.snap!.id,
+        );
+        try {
+          await firestore.collection("Teacher").doc(teacherId).set({
+            "Timestamp": specificTimeStamp,
+            "RecentChat": recentChatData,
+            'GroupId': teacherId,
+            'GroupTitle': name,
+            "GroupImage": "https://example.com/profile1.jpg",
+            'membersID': members
+                .map((member) => member.userId)
+                .toList(), // List of user IDs
+            'members': membersMap,
+            // List of members as maps
+          });
 
-     // Reference to the Firestore instance
-     final firestore = FirebaseFirestore.instance;
+          await firestore
+              .collection("Teacher")
+              .doc(teacherId)
+              .collection("Chat")
+              .doc(time)
+              .set(message.toJson());
+          print('Document added to the new collection');
+        } catch (e) {
+          print('Error adding document: $e');
+        }
+      }
+    } catch (e) {
+      // Handle any errors that occur during the query.
+      print('An error occurred while querying Firestore: $e');
+    }
+  }
 
-     try {
-       QuerySnapshot snapshot = await FirebaseFirestore.instance
-           .collection('Teacher')
-           .where('GroupId', isEqualTo: teacherId)
-           .get();
-
-       if (snapshot.docs.isNotEmpty) {
-         print("doc is already created");
-       } else {
-         final time = DateTime.now().microsecondsSinceEpoch.toString();
-         print(name);
-         final GroupMessages message = GroupMessages(
-           name: name,
-           msg: "Hi",
-           read: '',
-           type: Type.text,
-           sent: time,
-           fromid: widget.snap!.id,
-           toId: widget.snap!.id,
-
-         );
-         try {
-           await firestore.collection("Teacher").doc(teacherId).set({
-             "Timestamp":specificTimeStamp,
-             "RecentChat":recentChatData,
-             'GroupId': teacherId,
-             'GroupTitle': name,
-             "GroupImage":"https://example.com/profile1.jpg",
-             'membersID': members
-                 .map((member) => member.userId)
-                 .toList(), // List of user IDs
-             'members': membersMap,
-             // List of members as maps
-           });
-
-           await firestore
-               .collection("Teacher")
-               .doc(teacherId)
-               .collection("Chat").doc(time).set(message.toJson());
-           print('Document added to the new collection');
-         } catch (e) {
-           print('Error adding document: $e');
-         }
-       }
-     } catch (e) {
-       // Handle any errors that occur during the query.
-       print('An error occurred while querying Firestore: $e');
-     }
-   }
-
-   void _redirectToWhatsApp(BuildContext context) async {
-     final url = enrollNow;
-     try {
-       if (await canLaunch(url)) {
-         await launch(url);
-       } else {
-         throw 'Could not launch $url';
-       }
-     } catch (e) {
-       ScaffoldMessenger.of(context).showSnackBar(
-         SnackBar(
-           content: Text("Error: $e"),
-         ),
-       );
-     }
-   }
-
-
-
-
-
+  void _redirectToWhatsApp(BuildContext context) async {
+    final url = enrollNow;
+    try {
+      if (await canLaunch(url)) {
+        await launch(url);
+      } else {
+        throw 'Could not launch $url';
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Error: $e"),
+        ),
+      );
+    }
+  }
 }
 
 class ChatRoomMember {

@@ -1,12 +1,17 @@
 // import 'package:admob_flutter/admob_flutter.dart';
+import 'dart:developer';
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:ielts/SpeakingPage.dart';
 import 'package:ielts/models/speaking.dart';
 import 'package:ielts/screens/home_screen.dart';
 import 'package:ielts/services/admob_service.dart';
+import 'package:ielts/services/nativeads.dart';
 
 import '../widgets/facebookAds.dart';
 
@@ -26,6 +31,56 @@ enum TtsState { playing, stopped }
 class _SpeakingDetailScreenState extends State<SpeakingDetailScreen>
     with SingleTickerProviderStateMixin {
   FlutterTts flutterTts = FlutterTts();
+  late BannerAd bannerAds;
+
+  bool isAdLoaded = false;
+  bool isNativeLoaded = false;
+  late NativeAd _ad;
+
+  void loadNativeAd() {
+    _ad = NativeAd(
+        request: const AdRequest(),
+
+        ///This is a test adUnitId make sure to change it
+        adUnitId: adUnits,
+        factoryId: 'listTile',
+        listener: NativeAdListener(onAdLoaded: (ad) {
+          setState(() {
+            isNativeLoaded = true;
+          });
+        }, onAdFailedToLoad: (ad, error) {
+          ad.dispose();
+          print('failed to load the ad ${error.message}, ${error.code}');
+        }));
+
+    _ad.load();
+  }
+
+  var adUnits = 'ca-app-pub-2565086294001704/2881838616';
+  var adUnit = 'ca-app-pub-2565086294001704/8844512703';
+
+  initBannerAd() {
+    bannerAds = BannerAd(
+      size: AdSize.banner,
+      adUnitId: adUnit,
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          setState(() {
+            log('The ad has been loaded.');
+            isAdLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          log('Failed to load an ad: ${error.code}:${error.message}');
+          ad.dispose();
+        },
+      ),
+      request: AdRequest(),
+    );
+
+    // Load the banner ad
+    bannerAds.load();
+  }
 
   double volume = 0.5;
   double pitch = 1.0;
@@ -47,12 +102,70 @@ class _SpeakingDetailScreenState extends State<SpeakingDetailScreen>
   String? vocabResult;
   double? screenWidth, screenHeight;
   final Duration duration = const Duration(milliseconds: 300);
+  NativeAd? nativeAd;
+  bool _nativeAdIsLoaded = false;
+
+  // TODO: replace this test ad unit with your own ad unit.
+  final String _adUnitId = Platform.isAndroid
+      ? 'ca-app-pub-2565086294001704/2881838616'
+      : 'ca-app-pub-2565086294001704/2881838616';
+  // final String _adUnitId = Platform.isAndroid
+  //     ? 'ca-app-pub-3940256099942544/2247696110'
+  //     : 'ca-app-pub-3940256099942544/3986624511';
+
+  /// Loads a native ad.
+  void loadAd() {
+    nativeAd = NativeAd(
+        adUnitId: _adUnitId,
+        listener: NativeAdListener(
+          onAdLoaded: (ad) {
+            debugPrint('$NativeAd loaded.');
+            setState(() {
+              _nativeAdIsLoaded = true;
+            });
+          },
+          onAdFailedToLoad: (ad, error) {
+            // Dispose the ad here to free resources.
+            debugPrint('$NativeAd failed to load: $error');
+            ad.dispose();
+          },
+        ),
+        request: const AdRequest(),
+        // Styling
+        nativeTemplateStyle: NativeTemplateStyle(
+            templateType: TemplateType.medium,
+            mainBackgroundColor: Colors.teal,
+            cornerRadius: 10.0,
+            callToActionTextStyle: NativeTemplateTextStyle(
+                textColor: Colors.cyan,
+                backgroundColor: Colors.red,
+                style: NativeTemplateFontStyle.monospace,
+                size: 16.0),
+            primaryTextStyle: NativeTemplateTextStyle(
+                textColor: Colors.red,
+                backgroundColor: Colors.cyan,
+                style: NativeTemplateFontStyle.italic,
+                size: 16.0),
+            secondaryTextStyle: NativeTemplateTextStyle(
+                textColor: Colors.green,
+                backgroundColor: Colors.black,
+                style: NativeTemplateFontStyle.bold,
+                size: 16.0),
+            tertiaryTextStyle: NativeTemplateTextStyle(
+                textColor: Colors.brown,
+                backgroundColor: Colors.amber,
+                style: NativeTemplateFontStyle.normal,
+                size: 16.0)))
+      ..load();
+  }
 
   @override
   void initState() {
     super.initState();
     initTts();
-    // Admob.initialize();
+    loadAd();
+    initBannerAd();
+
     ams.getAdMobAppId();
   }
 
@@ -102,6 +215,7 @@ class _SpeakingDetailScreenState extends State<SpeakingDetailScreen>
   @override
   void dispose() {
     super.dispose();
+    nativeAd?.dispose();
     flutterTts.stop();
   }
 
@@ -118,13 +232,13 @@ class _SpeakingDetailScreenState extends State<SpeakingDetailScreen>
     screenHeight = size.height;
     screenWidth = size.width;
     return Scaffold(
-      bottomNavigationBar: BottomAppBar(
-        child: Container(
-          height: 100, // Adjust the height according to your banner ad's size
-          alignment: Alignment.center,
-          child: ads.buildBannerAd(), // Display the banner ad
-        ),
-      ),
+      bottomNavigationBar: isAdLoaded
+          ? SizedBox(
+              height: bannerAds.size.height.toDouble(),
+              width: bannerAds.size.width.toDouble(),
+              child: AdWidget(ad: bannerAds),
+            )
+          : SizedBox(),
       appBar: AppBar(
         title: Text(widget.speaking.title.replaceAll("_n", "\n"),
             maxLines: 2,
@@ -270,7 +384,21 @@ class _SpeakingDetailScreenState extends State<SpeakingDetailScreen>
                                       )),
                                 ),
                               ),
-                              ads.buildNativeAd(),
+
+                              Container(
+                                child: _nativeAdIsLoaded
+                                    ? SizedBox(
+                                        child: Container(
+                                          child: AdWidget(
+                                            ad: nativeAd!,
+                                          ),
+                                          alignment: Alignment.center,
+                                          height: 170,
+                                          color: Colors.black12,
+                                        ),
+                                      )
+                                    : SizedBox(),
+                              ),
                               SizedBox(
                                 height: ScreenUtil().setHeight(15),
                               ),
@@ -320,6 +448,22 @@ class _SpeakingDetailScreenState extends State<SpeakingDetailScreen>
                               ),
                               SizedBox(
                                 height: ScreenUtil().setHeight(15),
+                              ),
+
+// ads.buildNativeAd(),
+                              Container(
+                                child: isNativeLoaded
+                                    ? SizedBox(
+                                        child: Container(
+                                          child: AdWidget(
+                                            ad: _ad,
+                                          ),
+                                          alignment: Alignment.center,
+                                          height: 170,
+                                          color: Colors.black12,
+                                        ),
+                                      )
+                                    : SizedBox(),
                               ),
                               Container(
                                 decoration: BoxDecoration(
@@ -566,7 +710,8 @@ class _SpeakingDetailScreenState extends State<SpeakingDetailScreen>
             ElevatedButton.icon(
               onPressed: _speak,
               style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white, backgroundColor: Colors.green,
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.green,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30.0),
                 ),
@@ -585,7 +730,8 @@ class _SpeakingDetailScreenState extends State<SpeakingDetailScreen>
             ElevatedButton.icon(
               onPressed: _stop,
               style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white, backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.red,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30.0),
                 ),

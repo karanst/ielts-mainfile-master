@@ -106,19 +106,22 @@ class _HomeScreenState extends State<HomeScreen>
       print(e);
     }
   }
+
   final List<String> _productLists = Platform.isAndroid
       ? [
-    'vault_premium',
-    'android.test.purchased',
-    'android.test.canceled',
-  ]
-      : [    'teacher1.ielts_20usd',
-    'teacher2.ielts_50usd',];
+          'vault_premium',
+          'android.test.purchased',
+          'android.test.canceled',
+        ]
+      : [
+          'teacher1.ielts_20usd',
+          'teacher2.ielts_50usd',
+        ];
 
   Future _getProduct() async {
     print('getProduct: ${_productLists}');
     List<IAPItem> items =
-    await FlutterInappPurchase.instance.getProducts(_productLists);
+        await FlutterInappPurchase.instance.getProducts(_productLists);
     for (var item in items) {
       print('${item.toString()}');
       this._items.add(item);
@@ -175,8 +178,8 @@ class _HomeScreenState extends State<HomeScreen>
     }
 
     // setState(() {
-      this._items = [];
-      this._purchases = items;
+    this._items = [];
+    this._purchases = items;
     // });
   }
 
@@ -185,12 +188,6 @@ class _HomeScreenState extends State<HomeScreen>
     _controller.dispose();
     super.dispose();
   }
-
-  // InterstitialAd? interstitialAd;
-  // final String interstitialAdUnitId = Config.interstitialAds;
-
-  // InterstitialAd? interstitialAd;
-  // final String interstitialAdUnitId = Config.interstitialAds;
 
   List imgData = [
     "assets/readings.jpg",
@@ -205,14 +202,11 @@ class _HomeScreenState extends State<HomeScreen>
     "writing",
     "listening",
     "speaking",
-    "PDF",
+    "Books",
     "Quizes",
   ];
 
-  // Function to dynamically navigate based on the index
   void navigateToSection(int index) {
-    // You can place your ad logic here if needed
-    // Navigate to the appropriate section based on the index
     switch (index) {
       case 0:
         Navigator.of(context).pushNamed(RoutePaths.reading);
@@ -224,37 +218,19 @@ class _HomeScreenState extends State<HomeScreen>
         Navigator.of(context).pushNamed(RoutePaths.listening);
         break;
       case 3:
-        // Navigator.of(context).pushNamed(RoutePaths.speaking);
-        Navigator.of(context).pushNamed(RoutePaths.start);
+        Navigator.of(context).pushNamed(RoutePaths.speaking);
 
         break;
       case 4:
         Navigator.push(context, MaterialPageRoute(builder: (_) => PDF()));
         break;
-
       case 5:
         Navigator.of(context).pushNamed(RoutePaths.quiz);
         break;
-
       default:
         break;
     }
   }
-
-  // int _selectedIndex = 0;
-  //
-  // void _onItemTapped(int index) {
-  //   setState(() {
-  //     _selectedIndex = index;
-  //   });
-  //
-  //   // Handle navigation to different pages here
-  //   Example:
-  //   if (index == 1) {
-  //     Navigator.push(
-  //         context, MaterialPageRoute(builder: (context) => SplashScreens()));
-  //   }
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -266,14 +242,13 @@ class _HomeScreenState extends State<HomeScreen>
     height = MediaQuery.of(context).size.height;
     width = MediaQuery.of(context).size.width;
 
-    return
-      WillPopScope(
-        onWillPop: () async {
-          // return SystemChannels.platform.invokeMethod('SystemNavigator.pop');
-          SystemChannels.platform.invokeMethod('SystemNavigator.pop');
-          return true;
-        },
-        child: Scaffold(
+    return WillPopScope(
+      onWillPop: () async {
+        // return SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+        SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+        return true;
+      },
+      child: Scaffold(
         backgroundColor: Colors.white,
         body: SingleChildScrollView(
           child: SafeArea(
@@ -316,17 +291,7 @@ class _HomeScreenState extends State<HomeScreen>
                                   Navigator.pushNamed(
                                       context, RoutePaths.settings);
                                 },
-                                child: Container(
-                                  height: 50,
-                                  width: 50,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(15),
-                                    image: DecorationImage(
-                                      image: AssetImage('assets/woman.png'),
-                                    ),
-                                  ),
-                                ),
+                                child: Icon(Icons.settings),
                               )
                             ],
                           ),
@@ -337,8 +302,11 @@ class _HomeScreenState extends State<HomeScreen>
 
                   // Body
                   GestureDetector(
-                    onTap: (){
-                      Navigator.push(context, MaterialPageRoute(builder: (context) =>TeacherList()));
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => TeacherList()));
                     },
                     child: Container(
                       decoration: BoxDecoration(
@@ -352,7 +320,6 @@ class _HomeScreenState extends State<HomeScreen>
                       padding: EdgeInsets.symmetric(),
                       child: Column(
                         children: [
-
                           Container(
                             margin: EdgeInsets.symmetric(
                                 vertical: 8, horizontal: 20),
@@ -368,49 +335,45 @@ class _HomeScreenState extends State<HomeScreen>
                               ],
                             ),
                             child: Row(
-                              mainAxisAlignment:
-                              MainAxisAlignment.spaceEvenly,
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
-
                                 Column(
                                   children: [
                                     Text(
                                       'Meet Our ',
                                       style: TextStyle(
-                                        color: Colors.black, // Default color for text
+                                        color: Colors
+                                            .black, // Default color for text
                                         fontSize: 24.0, // Set text size
-                                      ),),
+                                      ),
+                                    ),
                                     Text(
                                       'Teacher',
                                       style: TextStyle(
-                                        color: Colors.blue, // Blue color for "Teacher"
-                                        fontWeight: FontWeight.bold, // Optional: make "Teacher" bold
+                                        color: Colors
+                                            .blue, // Blue color for "Teacher"
+                                        fontWeight: FontWeight
+                                            .bold, // Optional: make "Teacher" bold
                                       ),
                                     ),
-
                                   ],
                                 ),
-
                                 Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: Image.asset(
-                                    "assets/teacherPro.jpeg",fit: BoxFit.cover,
-                                    width: MediaQuery.of(context).size.width*0.4,
+                                    "assets/teacherPro.jpeg", fit: BoxFit.cover,
+                                    width:
+                                        MediaQuery.of(context).size.width * 0.4,
                                     // height: MediaQuery.of(context).size.height*0.2,
                                   ),
                                 ),
-
-
-
                               ],
                             ),
                           ),
-
-
                           SingleChildScrollView(
                             child: GridView.builder(
                               gridDelegate:
-                              SliverGridDelegateWithFixedCrossAxisCount(
+                                  SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: 2,
                                 childAspectRatio: 1.1,
                                 // mainAxisSpacing: 5,
@@ -426,12 +389,11 @@ class _HomeScreenState extends State<HomeScreen>
                                       AdHelper.initAds();
                                       AdHelper.showInterstitialAd(
                                           onComplete: () {
-                                            navigateToSection(index);
-                                          });
+                                        navigateToSection(index);
+                                      });
                                     }
                                   },
-                                  child:
-                                  Container(
+                                  child: Container(
                                     margin: EdgeInsets.symmetric(
                                         vertical: 8, horizontal: 20),
                                     decoration: BoxDecoration(
@@ -447,7 +409,7 @@ class _HomeScreenState extends State<HomeScreen>
                                     ),
                                     child: Column(
                                       mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
+                                          MainAxisAlignment.spaceEvenly,
                                       children: [
                                         Image.asset(
                                           imgData[index],
@@ -470,7 +432,6 @@ class _HomeScreenState extends State<HomeScreen>
                         ],
                       ),
                     ),
-
                   )
                 ],
               ),
@@ -492,9 +453,7 @@ class _HomeScreenState extends State<HomeScreen>
         //   selectedItemColor: Colors.amber[800],
         //   onTap: _onItemTapped,
         // ),
-            ),
-      );
+      ),
+    );
   }
 }
-
-

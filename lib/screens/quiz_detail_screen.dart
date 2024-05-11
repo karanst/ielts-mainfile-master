@@ -1,7 +1,10 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 import 'package:flutter_emoji/flutter_emoji.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:ielts/models/quiz.dart';
 import 'package:ielts/screens/quiz_result_screen.dart';
 
@@ -25,10 +28,37 @@ class _QuizDetailScreenState extends State<QuizDetailScreen> {
   int _currentIndex = 0;
   MyAds ads = MyAds();
 
+  late BannerAd bannerAds;
+  bool isAdLoaded = false;
+  var adUnit = 'ca-app-pub-2565086294001704/8844512703';
+
+  initBannerAd() {
+    bannerAds = BannerAd(
+      size: AdSize.banner,
+      adUnitId: adUnit,
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          setState(() {
+            log('The ad has been loaded.');
+            isAdLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          log('Failed to load an ad: ${error.code}:${error.message}');
+          ad.dispose();
+        },
+      ),
+      request: AdRequest(),
+    );
+
+    // Load the banner ad
+    bannerAds.load();
+  }
+
   @override
   void initState() {
     super.initState();
-
+    initBannerAd();
     // Set options for the first question
     setOptionsForCurrentQuestion();
   }
@@ -62,13 +92,13 @@ class _QuizDetailScreenState extends State<QuizDetailScreen> {
         print("GestureDetector tapped");
       },
       child: Scaffold(
-        bottomNavigationBar: BottomAppBar(
-          child: Container(
-            height: 100, // Adjust the height according to your banner ad's size
-            alignment: Alignment.center,
-            child: ads.buildBannerAd(), // Display the banner ad
-          ),
-        ),
+        bottomNavigationBar: isAdLoaded
+            ? SizedBox(
+                height: bannerAds.size.height.toDouble(),
+                width: bannerAds.size.width.toDouble(),
+                child: AdWidget(ad: bannerAds),
+              )
+            : SizedBox(),
         backgroundColor: Theme.of(context).splashColor,
         key: _key,
         appBar: AppBar(
@@ -103,13 +133,15 @@ class _QuizDetailScreenState extends State<QuizDetailScreen> {
                           child: Text(
                             "${_currentIndex + 1}",
                             style: TextStyle(
-                                color: Colors.black, fontWeight: FontWeight.bold),
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold),
                           ),
                         ),
                         SizedBox(width: ScreenUtil().setWidth(16)),
                         Expanded(
                           child: Text(
-                            widget.quiz.questions?[_currentIndex]?.questionText ??
+                            widget.quiz.questions?[_currentIndex]
+                                    ?.questionText ??
                                 '',
                             maxLines: 5,
                             overflow: TextOverflow.ellipsis,
@@ -145,8 +177,8 @@ class _QuizDetailScreenState extends State<QuizDetailScreen> {
                             }
 
                             return Padding(
-                              padding:
-                                  EdgeInsets.only(top: ScreenUtil().setHeight(8)),
+                              padding: EdgeInsets.only(
+                                  top: ScreenUtil().setHeight(8)),
                               child: RadioListTile<int>(
                                 groupValue: _selectedAnswer,
                                 activeColor: (_selectedAnswer != null &&
@@ -188,8 +220,8 @@ class _QuizDetailScreenState extends State<QuizDetailScreen> {
                                   (_answer == 'Answer is right, well done!')
                                       ? '${parser.emojify(':wink:')}'
                                       : '${parser.emojify(':disappointed:')} ',
-                                  style:
-                                      TextStyle(fontSize: ScreenUtil().setSp(36)),
+                                  style: TextStyle(
+                                      fontSize: ScreenUtil().setSp(36)),
                                 ),
                               ),
                               Container(
@@ -227,8 +259,8 @@ class _QuizDetailScreenState extends State<QuizDetailScreen> {
                                     EdgeInsets.all(ScreenUtil().setHeight(8)),
                                 child: Text(
                                   parser.emojify(':heart:'),
-                                  style:
-                                      TextStyle(fontSize: ScreenUtil().setSp(36)),
+                                  style: TextStyle(
+                                      fontSize: ScreenUtil().setSp(36)),
                                 ),
                               ),
                               Container(
@@ -279,7 +311,6 @@ class _QuizDetailScreenState extends State<QuizDetailScreen> {
                         _nextSubmit();
                       },
                     ),
-
                   ],
                 ),
               ),
@@ -317,6 +348,7 @@ class _QuizDetailScreenState extends State<QuizDetailScreen> {
       },
     );
   }
+
   bool isNavigationInProgress = false;
 
   void _nextSubmit() {
@@ -366,7 +398,6 @@ class _QuizDetailScreenState extends State<QuizDetailScreen> {
         ads.showRewardedAd();
         // Wait for a short duration to show the result message before navigating
         Future.delayed(Duration(milliseconds: 2000), () {
-
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(
               builder: (_) => QuizResultScreen(
@@ -387,11 +418,4 @@ class _QuizDetailScreenState extends State<QuizDetailScreen> {
 
     print('Exiting _nextSubmit function');
   }
-
-
-
-
-
-
-
 }

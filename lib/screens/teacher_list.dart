@@ -23,93 +23,178 @@ class _TeacherListState extends State<TeacherList> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-
-        automaticallyImplyLeading: false,
-        title: Text("Our Teachers"),
-        centerTitle: true,
-      ),
-      body: SingleChildScrollView(
-
-        child: Container(
-          padding: EdgeInsets.only(top: 25),
-          color: Colors.white,
-          // height: 200,
-
-          width: double.infinity,
-          child: StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance.collection("TeacherData").snapshots(),
-            builder: (_, snapshot) {
-              if (snapshot.hasData &&
-                  snapshot.data!.docs.isNotEmpty) {
-                return GridView.builder(
-                  padding: EdgeInsets.only(left: 5,right: 5),
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                      childAspectRatio: 0.6,
-
-
-                      // mainAxisExtent: 500,
-                    ),
-                    shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
-                  itemCount: snapshot.data!.docs.length,
-                    itemBuilder:(BuildContext context,i){
-                    return GestureDetector(
-                      onTap: (){
-
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) =>
-                                    AdvertisingScreen(snap: snapshot.data!.docs[i],)));                      },
-                      child: Card(
-                        // color: Colors.white10,
-                        surfaceTintColor: Colors.white,
-
-                        child: Column(
-                          children: [
-                            SizedBox(height: 15,),
-                        CircleAvatar(
-                        backgroundColor: Colors.grey[200],
-                          radius: 70, // Adjust the radius as needed
-                          child: CachedNetworkImage(
-                            imageUrl: snapshot.data!.docs[i]['img'],
-                            imageBuilder: (context, imageProvider) {
-                              return Container(
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  image: DecorationImage(
-                                    image: imageProvider,
-                                    fit: BoxFit.cover, // Ensure the image is scaled to fit the circle
-                                  ),
-                                ),
-                              );
-                            },
-                            placeholder: (context, url) => CircularProgressIndicator(), // Placeholder while the image loads
-                            errorWidget: (context, url, error) => Icon(Icons.error), // Error icon if the image fails to load
-                          ),),
-                            SizedBox(height: 5,),
-                            Text(snapshot.data!.docs[i]['name'],style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold),),
-                            Text(snapshot.data!.docs[i]['subject'],style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,color: Colors.blue),),
-                            Text(snapshot.data!.docs[i]['description_1'],
-                              maxLines: 4,textAlign: TextAlign.center,),
-
-
-
-                          ],
-                        ),
-
-                      ),
-                    );
-                    } );
-              } else {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              }
-            },
+        title: Text(
+          "Our Teachers",
+          style: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
           ),
         ),
+        backgroundColor: Colors.white,
+        elevation: 0, // No shadow
+      ),
+      body: StreamBuilder<QuerySnapshot>(
+        stream:
+            FirebaseFirestore.instance.collection("TeacherData").snapshots(),
+        builder: (_, snapshot) {
+          if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+            return ListView.builder(
+              itemCount: snapshot.data!.docs.length,
+              itemBuilder: (BuildContext context, i) {
+                String description = snapshot.data!.docs[i]['description_1'];
+                List<String> words = description.split(' ');
+
+                String shortenedDescription = words
+                    .sublist(0, words.length > 15 ? 15 : words.length)
+                    .join(' ');
+                if (words.length > 15) {
+                  shortenedDescription += '...';
+                }
+
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => AdvertisingScreen(
+                          snap: snapshot.data!.docs[i],
+                        ),
+                      ),
+                    );
+                  },
+                  child: Card(
+                    elevation: 5,
+                    margin: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                          top: 12, bottom: 12, right: 20, left: 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              CircleAvatar(
+                                radius: 45,
+                                backgroundColor: Colors.blue[200],
+                                child: CachedNetworkImage(
+                                  imageUrl: snapshot.data!.docs[i]['img'],
+                                  placeholder: (context, url) =>
+                                      CircularProgressIndicator(),
+                                  errorWidget: (context, url, error) =>
+                                      Icon(Icons.error),
+                                  imageBuilder: (context, imageProvider) {
+                                    return Container(
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        image: DecorationImage(
+                                          image: imageProvider,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                              SizedBox(width: 12),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text(
+                                        snapshot.data!.docs[i]['name'],
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      SizedBox(width: 12),
+                                      Image.network(
+                                        snapshot.data!.docs[i]['flag'],
+                                        width: 24, // Adjust width as needed
+                                        height: 24, // Adjust height as needed
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 4),
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.verified,
+                                        color: Colors.blue,
+                                        size: 20,
+                                      ),
+                                      SizedBox(width: 4),
+                                      Text(
+                                        'Verified Teacher',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.blue,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Text(
+                                    snapshot.data!.docs[i]['subject'],
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.blue,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 12),
+                          Text(
+                            shortenedDescription,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                            maxLines: 4,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Icon(Icons.person, size: 20),
+                              SizedBox(width: 6),
+                              Text(
+                                snapshot.data!.docs[i]['students'],
+                                style: TextStyle(
+                                  fontSize: 16,
+                                ),
+                              ),
+                              SizedBox(width: 20),
+                              Icon(Icons.live_tv, size: 20),
+                              SizedBox(width: 6),
+                              Text(
+                                snapshot.data!.docs[i]['lesson'],
+                                style: TextStyle(
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            );
+          } else {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+        },
       ),
     );
   }

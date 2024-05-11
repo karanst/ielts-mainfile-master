@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:ui' as ui;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flut_grouped_buttons/flut_grouped_buttons.dart';
@@ -31,9 +32,38 @@ class _QuizScreenState extends State<QuizScreen> {
   int _scoresIndex = 0;
   List<Quiz>? quizzes;
   final _adController = NativeAdController();
+
+  late BannerAd bannerAds;
+  bool isAdLoaded = false;
+  var adUnit = 'ca-app-pub-2565086294001704/8844512703';
+
+  initBannerAd() {
+    bannerAds = BannerAd(
+      size: AdSize.banner,
+      adUnitId: adUnit,
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          setState(() {
+            log('The ad has been loaded.');
+            isAdLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          log('Failed to load an ad: ${error.code}:${error.message}');
+          ad.dispose();
+        },
+      ),
+      request: AdRequest(),
+    );
+
+    // Load the banner ad
+    bannerAds.load();
+  }
+
   @override
   void initState() {
     super.initState();
+    initBannerAd();
   }
 
   @override
@@ -41,14 +71,13 @@ class _QuizScreenState extends State<QuizScreen> {
     ScreenUtil.init(context);
     _adController.ad = AdHelper.loadNativeAd(adController: _adController);
     return Scaffold(
-      bottomNavigationBar:
-          _adController.ad != null && _adController.adLoaded.isTrue
-              ? SizedBox(
-                  height: 100,
-                  child: AdWidget(
-                      ad: _adController.ad!), // Create and load a new ad object
-                )
-              : null,
+      bottomNavigationBar: isAdLoaded
+          ? SizedBox(
+              height: bannerAds.size.height.toDouble(),
+              width: bannerAds.size.width.toDouble(),
+              child: AdWidget(ad: bannerAds),
+            )
+          : SizedBox(),
       // bottomNavigationBar: BottomAppBar(
       //   child: Container(
       //     height: 100, // Adjust the height according to your banner ad's size

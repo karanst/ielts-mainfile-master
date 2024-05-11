@@ -118,7 +118,8 @@ class _LoginScreenState extends State<LoginScreen1>
     // _formKey.currentState?.save();
     try {
       if (_authMode == AuthMode.Login) {
-        await signIn(emailInputController.text, passwordInputController.text, isTeacher);
+        await signIn(
+            emailInputController.text, passwordInputController.text, isTeacher);
         print('successful');
 
         // Navigator.pushReplacementNamed(context, RoutePaths.home);
@@ -271,12 +272,12 @@ class _LoginScreenState extends State<LoginScreen1>
 
   Widget _submitTeacherButton() {
     return TextButton(
-      onPressed: (){
+      onPressed: () {
         _submit(true);
       },
       child: Container(
         width: MediaQuery.of(context).size.width,
-        padding: EdgeInsets.symmetric(vertical: ScreenUtil().setHeight(15)),
+        padding: EdgeInsets.symmetric(vertical: ScreenUtil().setHeight(10)),
         alignment: Alignment.center,
         decoration: BoxDecoration(
             borderRadius: BorderRadius.all(Radius.circular(5)),
@@ -299,7 +300,7 @@ class _LoginScreenState extends State<LoginScreen1>
 
   Widget _submitButton() {
     return TextButton(
-      onPressed: (){
+      onPressed: () {
         _submit(false);
       },
       child: Container(
@@ -319,61 +320,71 @@ class _LoginScreenState extends State<LoginScreen1>
         child: Text(
           '${_authMode == AuthMode.Login ? 'Login ' : 'Register '}',
           style:
-          TextStyle(fontSize: ScreenUtil().setSp(20), color: Colors.white),
+              TextStyle(fontSize: ScreenUtil().setSp(20), color: Colors.white),
         ),
       ),
     );
   }
 
-  // Widget _googleButton() {
-  //   return TextButton(
-  //     // splashColor: Colors.grey,
-  //     onPressed:
-  //         () async {
-  //       try {
-  //         await signInWithGoogle();
-  //         final _user = await FirebaseAuth.instance.currentUser;
-  //         if (_user != null) {
-  //           Navigator.pushReplacementNamed(context, RoutePaths.home);
-  //         } else {
-  //           setState(() {});
-  //         }
-  //       } catch (error) {
-  //         switch (error) {
-  //           case "sign_in_canceled":
-  //             errorMessage = "Sign in cancelled";
-  //             break;
-  //         }
-  //       }
-  //     },
-  //     // shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
-  //     // highlightElevation: 0,
-  //     // borderSide: BorderSide(color: Colors.grey),
-  //     // child: Padding(
-  //     //   padding: EdgeInsets.fromLTRB(
-  //     //       0, ScreenUtil().setHeight(10), 0, ScreenUtil().setHeight(10)),
-  //     //   child: Row(
-  //     //     mainAxisSize: MainAxisSize.min,
-  //     //     mainAxisAlignment: MainAxisAlignment.center,
-  //     //     children: <Widget>[
-  //     //       Image(
-  //     //           image: AssetImage("assets/googlelogo.jpg"),
-  //     //           height: ScreenUtil().setHeight(35)),
-  //     //       Padding(
-  //     //         padding: EdgeInsets.only(left: ScreenUtil().setWidth(10)),
-  //     //         child: Text(
-  //     //           'Sign in with Google',
-  //     //           style: TextStyle(
-  //     //               fontSize: ScreenUtil().setSp(20),
-  //     //               color: Colors.grey,
-  //     //               fontWeight: FontWeight.w400),
-  //     //         ),
-  //     //       )
-  //     //     ],
-  //     //   ),
-  //     // ),
-  //   );
-  // }
+  Widget _googleButton(BuildContext context) {
+    return TextButton(
+      onPressed: () async {
+        try {
+          await signInWithGoogle();
+          final _user = FirebaseAuth.instance.currentUser;
+          if (_user != null) {
+            Navigator.pushReplacementNamed(context, RoutePaths.home);
+          } else {
+            // Handle the case where user is null after sign-in
+            // For example, show an error message or perform additional actions.
+          }
+        } catch (error) {
+          // Handle different types of errors
+          if (error is FirebaseAuthException) {
+            // FirebaseAuthException provides errorCode which can be used for specific error handling
+            switch (error.code) {
+              case "sign_in_canceled":
+                errorMessage = "Sign in cancelled";
+                break;
+              default:
+                // Handle other FirebaseAuth exceptions
+                errorMessage = "Error: ${error.message}";
+            }
+          } else {
+            // Handle other types of errors, e.g., platform exceptions
+            errorMessage = "Error: $error";
+          }
+          setState(() {
+            // Update UI state to reflect error
+          });
+        }
+      },
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Image(
+              image: AssetImage("assets/googlelogo.jpg"),
+              height: 35,
+            ),
+            Padding(
+              padding: EdgeInsets.only(left: 10),
+              child: Text(
+                'Sign in with Google',
+                style: TextStyle(
+                  fontSize: 20,
+                  color: Colors.grey,
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   Widget _anonymousLoginButton() {
     return TextButton(
@@ -510,12 +521,12 @@ class _LoginScreenState extends State<LoginScreen1>
                   color: Colors.black, fontSize: ScreenUtil().setSp(30)),
             ),
             TextSpan(
-              text: ' Va',
+              text: ' ya',
               style: TextStyle(
                   color: Color(0xffe46b10), fontSize: ScreenUtil().setSp(30)),
             ),
             TextSpan(
-              text: 'ult',
+              text: 'n',
               style: TextStyle(
                   color: Colors.black, fontSize: ScreenUtil().setSp(30)),
             ),
@@ -561,41 +572,29 @@ class _LoginScreenState extends State<LoginScreen1>
           height: MediaQuery.of(context).size.height,
           padding: EdgeInsets.symmetric(horizontal: ScreenUtil().setWidth(20)),
           child: SingleChildScrollView(
-            // 2. Use SingleChildScrollView to handle potential overflow:
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
+                SizedBox(height: ScreenUtil().setHeight(50)),
                 _title(),
                 SizedBox(height: ScreenUtil().setHeight(50)),
                 _emailPasswordWidget(),
                 SizedBox(height: ScreenUtil().setHeight(20)),
                 _submitButton(),
-                SizedBox(height: ScreenUtil().setHeight(20)),
-                _submitTeacherButton(),
+
                 Visibility(
                   visible: _authMode == AuthMode.Login,
                   child: MaterialButton(onPressed: () {
                     Navigator.pushNamed(context, RoutePaths.resetpassword);
-                  }
-                      // ,  child: Container(
-                      //   padding:
-                      //   EdgeInsets.symmetric(vertical: ScreenUtil().setHeight(10)),
-                      //   alignment: Alignment.centerRight,
-                      //   child: Text('Forgot Password ?',
-                      //       style: TextStyle(
-                      //           color: Colors.black,
-                      //           fontSize: ScreenUtil().setSp(14),
-                      //           fontWeight: FontWeight.w500)),
-                      // ),
-                      // ... (Forgot Password button)
-                      ),
+                  }),
                 ),
                 _divider(),
-                // _googleButton(),
-                SizedBox(height: ScreenUtil().setHeight(20)),
+                // _googleButton(context),
+
                 _anonymousLoginButton(),
-                _createAccountLabel(), // No need for Expanded and Align
+                _createAccountLabel(),
+                _submitTeacherButton(), // No need for Expanded and Align
               ],
             ),
           ),

@@ -100,8 +100,12 @@ dependencies:
   carousel_slider: ^4.2.1
   audio_waveforms: ^1.0.5
   audio_video_progress_bar: ^2.0.2
+  flutter_background_service: ^5.0.5
+  device_info_plus: ^9.0.0
 
   chat_bubbles:
+  glassfy_flutter: ^1.6.2
+  flutter_syntax_view: ^4.0.0
 
 #  flutter_tindercard_plus:
 #  admob_flutter: ^3.0.0

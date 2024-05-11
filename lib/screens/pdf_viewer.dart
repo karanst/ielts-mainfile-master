@@ -65,7 +65,16 @@ class _PDFState extends State<PDF> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text('PDF Books'),
+        title: Text(
+          'IELTS BOOKS',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 20.0,
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.blueGrey, // Example color
+        elevation: 0, // Set elevation to 0 to remove shadow
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),

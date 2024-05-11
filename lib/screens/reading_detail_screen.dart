@@ -1,3 +1,6 @@
+import 'dart:developer';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -40,16 +43,102 @@ class _ReadingDetailScreenState extends State<ReadingDetailScreen>
   bool isCollapsed = true;
   late double screenWidth, screenHeight;
   final Duration duration = const Duration(milliseconds: 300);
+  late BannerAd bannerAds;
+  bool isAdLoaded = false;
+  NativeAd? nativeAd;
+  bool _nativeAdIsLoaded = false;
+
+  // TODO: replace this test ad unit with your own ad unit.
+  final String _adUnitId = Platform.isAndroid
+      ? 'ca-app-pub-2565086294001704/2881838616'
+      : 'ca-app-pub-2565086294001704/2881838616';
+  // final String _adUnitId = Platform.isAndroid
+  //     ? 'ca-app-pub-3940256099942544/2247696110'
+  //     : 'ca-app-pub-3940256099942544/3986624511';
+
+  /// Loads a native ad.
+  void loadAd() {
+    nativeAd = NativeAd(
+        adUnitId: _adUnitId,
+        listener: NativeAdListener(
+          onAdLoaded: (ad) {
+            debugPrint('$NativeAd loaded.');
+            setState(() {
+              _nativeAdIsLoaded = true;
+            });
+          },
+          onAdFailedToLoad: (ad, error) {
+            // Dispose the ad here to free resources.
+            debugPrint('$NativeAd failed to load: $error');
+            ad.dispose();
+          },
+        ),
+        request: const AdRequest(),
+        // Styling
+        nativeTemplateStyle: NativeTemplateStyle(
+            templateType: TemplateType.medium,
+            mainBackgroundColor: Colors.teal,
+            cornerRadius: 10.0,
+            callToActionTextStyle: NativeTemplateTextStyle(
+                textColor: Colors.cyan,
+                backgroundColor: Colors.red,
+                style: NativeTemplateFontStyle.monospace,
+                size: 16.0),
+            primaryTextStyle: NativeTemplateTextStyle(
+                textColor: Colors.red,
+                backgroundColor: Colors.cyan,
+                style: NativeTemplateFontStyle.italic,
+                size: 16.0),
+            secondaryTextStyle: NativeTemplateTextStyle(
+                textColor: Colors.green,
+                backgroundColor: Colors.black,
+                style: NativeTemplateFontStyle.bold,
+                size: 16.0),
+            tertiaryTextStyle: NativeTemplateTextStyle(
+                textColor: Colors.brown,
+                backgroundColor: Colors.amber,
+                style: NativeTemplateFontStyle.normal,
+                size: 16.0)))
+      ..load();
+  }
+
+  var adUnit = 'ca-app-pub-2565086294001704/8844512703';
+
+  initBannerAd() {
+    bannerAds = BannerAd(
+      size: AdSize.banner,
+      adUnitId: adUnit,
+      listener: BannerAdListener(
+        onAdLoaded: (ad) {
+          setState(() {
+            log('The ad has been loaded.');
+            isAdLoaded = true;
+          });
+        },
+        onAdFailedToLoad: (ad, error) {
+          log('Failed to load an ad: ${error.code}:${error.message}');
+          ad.dispose();
+        },
+      ),
+      request: AdRequest(),
+    );
+
+    // Load the banner ad
+    bannerAds.load();
+  }
 
   @override
   void initState() {
     super.initState();
+    initBannerAd();
+    loadAd();
     ams.getAdMobAppId();
     // AdHelper.showRewardedAd(onComplete: (){});
   }
 
   @override
   void dispose() {
+    nativeAd?.dispose();
     super.dispose();
   }
 
@@ -61,13 +150,13 @@ class _ReadingDetailScreenState extends State<ReadingDetailScreen>
     screenWidth = size.width;
 
     return Scaffold(
-      bottomNavigationBar: BottomAppBar(
-        child: Container(
-          height: 100, // Adjust the height according to your banner ad's size
-          alignment: Alignment.center,
-          child: ads.buildBannerAd(), // Display the banner ad
-        ),
-      ),
+      bottomNavigationBar: isAdLoaded
+          ? SizedBox(
+              height: bannerAds.size.height.toDouble(),
+              width: bannerAds.size.width.toDouble(),
+              child: AdWidget(ad: bannerAds),
+            )
+          : SizedBox(),
       key: _scaffoldKey,
       appBar: AppBar(
         title: Text(
@@ -145,6 +234,7 @@ class _ReadingDetailScreenState extends State<ReadingDetailScreen>
                             ],
                           ),
                         ),
+
                         Padding(
                           padding: EdgeInsets.all(ScreenUtil().setHeight(8)),
                           child: Column(
@@ -204,7 +294,24 @@ class _ReadingDetailScreenState extends State<ReadingDetailScreen>
                                 );
                               },
                             )),
-
+                        // ads.buildNativeAd(),
+                        Container(
+                          child: _nativeAdIsLoaded
+                              ? SizedBox(
+                                  child: Container(
+                                    child: AdWidget(
+                                      ad: nativeAd!,
+                                    ),
+                                    alignment: Alignment.center,
+                                    height: 170,
+                                    color: Colors.black12,
+                                  ),
+                                )
+                              : SizedBox(),
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
                         // For Summary Text
                         Container(
                           padding: EdgeInsets.symmetric(
@@ -266,111 +373,115 @@ class _ReadingDetailScreenState extends State<ReadingDetailScreen>
                 ),
 
                 // Container for the Answers button
-                Container(
-                  color: Colors.deepPurpleAccent,
-                  child: Align(
-                    alignment: Alignment.bottomCenter,
-                    child: MaterialButton(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      // onPressed: () {
-                      //   showDialog(
-                      //     context: context,
-                      //     builder: (BuildContext context) {
-                      //       return CustomPopupDialog(
-                      //           reading); // Your custom dialog widget
-                      //     },
-                      //   );
-                      // },
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 30),
+                  child: Container(
+                    color: Colors.deepPurpleAccent,
+                    child: Align(
+                      alignment: Alignment.bottomCenter,
+                      child: MaterialButton(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        // onPressed: () {
+                        //   showDialog(
+                        //     context: context,
+                        //     builder: (BuildContext context) {
+                        //       return CustomPopupDialog(
+                        //           reading); // Your custom dialog widget
+                        //     },
+                        //   );
+                        // },
 
-                      onPressed: () {
-                        // Check if the user is premium
-                        if (!premium_user_google_play) {
-                          // User is premium, show the answer
-                          AdHelper.showRewardedAd(onComplete: () {
+                        onPressed: () {
+                          // Check if the user is premium
+                          if (!premium_user_google_play) {
+                            // User is premium, show the answer
+                            AdHelper.showRewardedAd(onComplete: () {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return CustomPopupDialog(
+                                      reading); // Your custom dialog widget
+                                },
+                              );
+                            });
+                          } else {
+                            // User is not premium, prompt to upgrade
                             showDialog(
                               context: context,
                               builder: (BuildContext context) {
-                                return CustomPopupDialog(
-                                    reading); // Your custom dialog widget
+                                return AlertDialog(
+                                  title: Text("Upgrade to Premium"),
+                                  content: Text(
+                                      "Upgrade to premium at very low price to see the answer."),
+                                  actions: <Widget>[
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.of(context)
+                                            .pop(); // Close the dialog
+                                      },
+                                      child: Text(
+                                        "Cancel",
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                      style: ButtonStyle(
+                                        backgroundColor:
+                                            MaterialStateProperty.all<Color>(
+                                          Colors.red,
+                                        ),
+                                      ),
+                                    ),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.of(context)
+                                            .pop(); // Close the dialog
+                                        // Redirect to Premium Screen
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                PremiumScreen(),
+                                          ),
+                                        );
+                                      },
+                                      child: Text(
+                                        "Upgrade",
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                      style: ButtonStyle(
+                                        backgroundColor:
+                                            MaterialStateProperty.all<Color>(
+                                          Colors.green,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                );
                               },
                             );
-                          });
-                        } else {
-                          // User is not premium, prompt to upgrade
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: Text("Upgrade to Premium"),
-                                content: Text(
-                                    "Upgrade to premium at very low price to see the answer."),
-                                actions: <Widget>[
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      Navigator.of(context)
-                                          .pop(); // Close the dialog
-                                    },
-                                    child: Text(
-                                      "Cancel",
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                    style: ButtonStyle(
-                                      backgroundColor:
-                                          MaterialStateProperty.all<Color>(
-                                        Colors.red,
-                                      ),
-                                    ),
-                                  ),
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      Navigator.of(context)
-                                          .pop(); // Close the dialog
-                                      // Redirect to Premium Screen
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => PremiumScreen(),
-                                        ),
-                                      );
-                                    },
-                                    child: Text(
-                                      "Upgrade",
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                    style: ButtonStyle(
-                                      backgroundColor:
-                                          MaterialStateProperty.all<Color>(
-                                        Colors.green,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-                        }
-                      },
-                      // onPressed: () {
-                      //   showDialog(
-                      //     context: context,
-                      //     builder: (BuildContext context) {
-                      //       return CustomPopupDialog(
-                      //           reading); // Your custom dialog widget
-                      //     },
-                      //   );
-                      // },
-                      child: Text(
-                        'Answers',
-                        style: TextStyle(
-                          fontSize: ScreenUtil().setSp(20),
-                          fontFamily: 'Montserrat',
+                          }
+                        },
+                        // onPressed: () {
+                        //   showDialog(
+                        //     context: context,
+                        //     builder: (BuildContext context) {
+                        //       return CustomPopupDialog(
+                        //           reading); // Your custom dialog widget
+                        //     },
+                        //   );
+                        // },
+                        child: Text(
+                          'Answers',
+                          style: TextStyle(
+                            fontSize: ScreenUtil().setSp(20),
+                            fontFamily: 'Montserrat',
+                          ),
                         ),
+                        color: Colors.deepPurpleAccent,
+                        textColor: Colors.white,
+                        elevation: 7,
                       ),
-                      color: Colors.deepPurpleAccent,
-                      textColor: Colors.white,
-                      elevation: 7,
                     ),
                   ),
                 ),
